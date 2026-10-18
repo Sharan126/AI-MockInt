@@ -1,6 +1,16 @@
 import { GoogleGenAI } from "@google/genai";
 
-const MODEL_NAME = "gemini-3.8-flash";
+// Priority order of verified available Gemini models with independent free-tier quotas
+const AVAILABLE_MODELS = [
+  "gemini-2.5-flash-lite",
+  "gemini-3.5-flash-lite",
+  "gemini-3.1-flash-lite",
+  "gemini-3.7-flash",
+  "gemini-3.5-flash",
+  "gemini-3.6-flash",
+  "gemini-flash-lite-latest",
+  "gemini-3.8-flash",
+];
 
 const generateContent = async (prompt) => {
   const apiKey = process.env.GEMINI_API_KEY;
@@ -9,18 +19,37 @@ const generateContent = async (prompt) => {
   }
 
   const ai = new GoogleGenAI({ apiKey });
+  let lastError = null;
 
-  try {
-    const response = await ai.models.generateContent({
-      model: MODEL_NAME,
-      contents: prompt,
-    });
+  for (const model of AVAILABLE_MODELS) {
+    try {
+      const response = await ai.models.generateContent({
+        model,
+        contents: prompt,
+      });
 
-    return response.text;
-  } catch (error) {
-    console.error("Gemini API Error:", error.message);
-    throw new Error(`Gemini API failed: ${error.message}`);
+      if (response && response.text) {
+        return response.text;
+      }
+    } catch (error) {
+      lastError = error;
+      const isQuotaError =
+        error.message?.includes("429") ||
+        error.message?.includes("RESOURCE_EXHAUSTED") ||
+        error.message?.includes("quota");
+
+      if (isQuotaError) {
+        console.warn(
+          `⚠️ Model ${model} quota reached, automatically cascading to next active model...`
+        );
+      } else {
+        console.warn(`⚠️ Model ${model} call failed:`, error.message);
+      }
+    }
   }
+
+  console.error("All Gemini models in cascade failed:", lastError?.message);
+  throw new Error(`All Gemini models failed. Last error: ${lastError?.message}`);
 };
 
-export { generateContent };
+export { generateContent };

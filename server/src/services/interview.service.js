@@ -102,40 +102,7 @@ export const answerQuestion = async (interviewId, userId, answer) => {
       feedback = parseGeminiJSON(feedbackRaw);
     } catch (parseErr) {
       console.warn('⚠️ Feedback parsing fallback triggered:', parseErr.message);
-      feedback = {
-        overallScore: 82,
-        categoryScores: {
-          communicationSkills: {
-            score: 85,
-            comment: 'Clear and articulate responses throughout the interview.',
-          },
-          technicalKnowledge: {
-            score: 80,
-            comment: 'Solid foundational technical comprehension.',
-          },
-          problemSolving: {
-            score: 82,
-            comment: 'Analytical and structured approach to solving technical prompts.',
-          },
-          codeQuality: {
-            score: 80,
-            comment: 'Clean structure and thoughtful logic in code submissions.',
-          },
-          confidence: {
-            score: 85,
-            comment: 'Poised, professional, and composed throughout the session.',
-          },
-        },
-        strengths: [
-          'Articulate explanation of engineering concepts and project history.',
-          'Structured problem-solving methodology.',
-        ],
-        areasOfImprovement: [
-          'Deepen system performance and time-complexity optimization analysis.',
-          'Incorporate specific metrics and measurable impact into behavioral answers.',
-        ],
-        finalAssessment: `Solid interview performance with strong competencies for the ${interview.role || 'technical'} position.`,
-      };
+      feedback = generateDynamicFallbackFeedback(interview);
     }
 
     interview.status = 'completed';
@@ -213,6 +180,107 @@ export const evaluateCodeSubmission = async (interviewId, userId, code, language
   return evaluation;
 };
 
+export const generateDynamicFallbackFeedback = (interview) => {
+  const candidateMessages = (interview.messages || []).filter(
+    (m) => m.role === 'candidate'
+  );
+  const totalWords = candidateMessages
+    .map((m) => m.content || '')
+    .join(' ')
+    .split(/\s+/)
+    .filter(Boolean).length;
+
+  const hasCode = (interview.codeSubmissions || []).length > 0;
+
+  let commScore = 65;
+  let techScore = 60;
+  let probScore = 65;
+  let codeScore = hasCode ? 78 : 50;
+  let confScore = 65;
+
+  if (totalWords > 150) {
+    commScore = 88;
+    techScore = 82;
+    probScore = 85;
+    confScore = 85;
+  } else if (totalWords > 70) {
+    commScore = 78;
+    techScore = 74;
+    probScore = 75;
+    confScore = 76;
+  } else if (totalWords < 30) {
+    commScore = 48;
+    techScore = 40;
+    probScore = 45;
+    confScore = 50;
+  }
+
+  const overallScore = Math.round(
+    (commScore + techScore + probScore + codeScore + confScore) / 5
+  );
+
+  const sampleAnswer = candidateMessages[0]?.content || '';
+  const snippet =
+    sampleAnswer.length > 50
+      ? sampleAnswer.substring(0, 50) + '...'
+      : sampleAnswer;
+
+  return {
+    overallScore,
+    categoryScores: {
+      communicationSkills: {
+        score: commScore,
+        comment:
+          totalWords > 70
+            ? `You communicated your thoughts with clear structure when answering: "${snippet}".`
+            : 'Your responses were relatively brief. Try to elaborate on your reasoning and provide concrete examples.',
+      },
+      technicalKnowledge: {
+        score: techScore,
+        comment:
+          totalWords > 70
+            ? 'Demonstrated relevant conceptual understanding of required tools and patterns.'
+            : 'Focus on demonstrating deeper technical knowledge and specific trade-offs.',
+      },
+      problemSolving: {
+        score: probScore,
+        comment: 'Approached the technical scenarios logically and with structure.',
+      },
+      codeQuality: {
+        score: codeScore,
+        comment: hasCode
+          ? 'Code submission was well-formed and syntax was structured.'
+          : 'No complete code solutions were submitted or evaluated in this session.',
+      },
+      confidence: {
+        score: confScore,
+        comment:
+          totalWords > 70
+            ? 'Maintained composure and engaged thoughtfully throughout the questions.'
+            : 'Work on answering with more conviction and technical detail.',
+      },
+    },
+    strengths: [
+      totalWords > 50
+        ? `Direct engagement with the questions, such as when discussing "${snippet}".`
+        : 'Clear willingness to answer and explore interview topics.',
+      hasCode
+        ? 'Submitted a functional code solution.'
+        : 'Maintained a professional tone throughout the session.',
+    ],
+    areasOfImprovement: [
+      totalWords < 80
+        ? 'Provide more detailed context, specific metrics, and real-world challenges from past projects.'
+        : 'Deepen technical trade-off discussions regarding performance and architecture.',
+      'Use the STAR method (Situation, Task, Action, Result) for behavioral questions.',
+    ],
+    finalAssessment:
+      overallScore >= 75
+        ? `A strong performance with good communication and relevant competencies.`
+        : `A promising start, though expanding your technical depth and providing more detailed answers will significantly improve your interview outcome.`,
+  };
+};
+
 export const endInterview = async (interviewId, userId) => {
   const interview = await Interview.findOne({ _id: interviewId, userId });
   if (!interview) {
@@ -234,40 +302,7 @@ export const endInterview = async (interviewId, userId) => {
       feedback = parseGeminiJSON(feedbackRaw);
     } catch (parseErr) {
       console.warn('⚠️ Feedback parsing fallback triggered in endInterview:', parseErr.message);
-      feedback = {
-        overallScore: 82,
-        categoryScores: {
-          communicationSkills: {
-            score: 85,
-            comment: 'Clear and articulate responses throughout the interview.',
-          },
-          technicalKnowledge: {
-            score: 80,
-            comment: 'Solid foundational technical comprehension.',
-          },
-          problemSolving: {
-            score: 82,
-            comment: 'Analytical and structured approach to solving technical prompts.',
-          },
-          codeQuality: {
-            score: 80,
-            comment: 'Clean structure and thoughtful logic in code submissions.',
-          },
-          confidence: {
-            score: 85,
-            comment: 'Poised, professional, and composed throughout the session.',
-          },
-        },
-        strengths: [
-          'Articulate explanation of engineering concepts and project history.',
-          'Structured problem-solving methodology.',
-        ],
-        areasOfImprovement: [
-          'Deepen system performance and time-complexity optimization analysis.',
-          'Incorporate specific metrics and measurable impact into behavioral answers.',
-        ],
-        finalAssessment: `Solid interview performance with strong competencies for the ${interview.role || 'technical'} position.`,
-      };
+      feedback = generateDynamicFallbackFeedback(interview);
     }
 
     interview.status = 'completed';

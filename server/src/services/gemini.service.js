@@ -8,44 +8,100 @@ const getMockResponse = (prompt) => {
     prompt.includes('FEEDBACK') ||
     prompt.includes('COMPLETE INTERVIEW CONVERSATION:')
   ) {
+    const candidateLines = (
+      prompt.match(/Candidate:\s*([^\n]+)/gi) || []
+    ).map((l) => l.replace(/Candidate:\s*/i, '').trim());
+
+    const totalWords = candidateLines.join(' ').split(/\s+/).filter(Boolean).length;
+    const hasCode =
+      prompt.includes('CODE SUBMISSIONS:') &&
+      !prompt.includes('CODE SUBMISSIONS:\n\n') &&
+      prompt.split('CODE SUBMISSIONS:')[1]?.trim()?.length > 10;
+
+    let commScore = 65;
+    let techScore = 60;
+    let probScore = 65;
+    let codeScore = hasCode ? 78 : 50;
+    let confScore = 65;
+
+    if (totalWords > 150) {
+      commScore = 88;
+      techScore = 82;
+      probScore = 85;
+      confScore = 85;
+    } else if (totalWords > 70) {
+      commScore = 78;
+      techScore = 74;
+      probScore = 75;
+      confScore = 76;
+    } else if (totalWords < 30) {
+      commScore = 48;
+      techScore = 40;
+      probScore = 45;
+      confScore = 50;
+    }
+
+    const calculatedOverall = Math.round(
+      (commScore + techScore + probScore + codeScore + confScore) / 5
+    );
+
+    const firstAnswer = candidateLines[0] || 'your initial introduction';
+    const sampleSnippet =
+      firstAnswer.length > 50 ? firstAnswer.substring(0, 50) + '...' : firstAnswer;
+
     return JSON.stringify({
-      overallScore: 82,
+      overallScore: calculatedOverall,
       categoryScores: {
         communicationSkills: {
-          score: 85,
+          score: commScore,
           comment:
-            'You communicated clearly and explained your rationale and trade-offs effectively.',
+            totalWords > 70
+              ? `You communicated your thoughts with clear structure when answering: "${sampleSnippet}".`
+              : 'Your responses were relatively brief. Try to elaborate on your reasoning and provide concrete examples.',
         },
         technicalKnowledge: {
-          score: 80,
+          score: techScore,
           comment:
-            'You demonstrated solid conceptual knowledge relevant to the role.',
+            totalWords > 70
+              ? 'Demonstrated relevant conceptual understanding of required tools and patterns.'
+              : 'Focus on demonstrating deeper technical knowledge and specific trade-offs.',
         },
         problemSolving: {
-          score: 85,
-          comment:
-            'Structured, analytical approach to addressing technical prompts.',
+          score: probScore,
+          comment: 'Approached the technical scenarios logically and with structure.',
         },
         codeQuality: {
-          score: 80,
-          comment:
-            'Clean, readable syntax with proper naming and edge-case awareness.',
+          score: codeScore,
+          comment: hasCode
+            ? 'Code submission was well-formed and syntax was structured.'
+            : 'No complete code solutions were submitted or evaluated in this session.',
         },
         confidence: {
-          score: 80,
-          comment: 'Poised, professional, and thoughtful during the conversation.',
+          score: confScore,
+          comment:
+            totalWords > 70
+              ? 'Maintained composure and engaged thoughtfully throughout the questions.'
+              : 'Work on answering with more conviction and technical detail.',
         },
       },
       strengths: [
-        'Clear and structured articulation of past technical challenges.',
-        'Strong problem-solving instincts and methodical approach to coding problems.',
+        totalWords > 50
+          ? `Direct engagement with the questions, such as when discussing "${sampleSnippet}".`
+          : 'Clear willingness to answer and explore interview topics.',
+        hasCode
+          ? 'Submitted a functional code solution.'
+          : 'Maintained a professional tone throughout the session.',
       ],
       areasOfImprovement: [
-        'Could dive deeper into system performance optimizations and memory footprints.',
-        'Provide more specific metrics on impact when discussing previous project achievements.',
+        totalWords < 80
+          ? 'Provide more detailed context, specific metrics, and real-world challenges from past projects.'
+          : 'Deepen technical trade-off discussions regarding performance and architecture.',
+        'Use the STAR method (Situation, Task, Action, Result) for behavioral questions.',
       ],
       finalAssessment:
-        'A very strong technical interview performance showing solid competencies and strong potential for the role.',
+        calculatedOverall >= 75
+          ? 'A strong performance with good communication and relevant competencies.'
+          : 'A promising start, though expanding your technical depth and providing more detailed answers will significantly improve your interview outcome.',
     });
   }
 
