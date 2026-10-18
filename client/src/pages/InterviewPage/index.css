@@ -52,6 +52,24 @@
   flex: 1;
 }
 
+.topbar-track-badge {
+  font-family: inherit;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #2563eb;
+  background: rgba(37, 99, 235, 0.1);
+  padding: 3px 8px;
+  border-radius: 6px;
+  white-space: nowrap;
+}
+
+[data-theme='dark'] .topbar-track-badge {
+  color: #60a5fa;
+  background: rgba(59, 130, 246, 0.2);
+}
+
 .topbar-question-label {
   font-family: "Roboto", sans-serif;
   font-size: 14px;

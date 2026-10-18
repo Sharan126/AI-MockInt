@@ -1,58 +1,72 @@
-export const GENERATE_QUESTIONS_PROMPT = (role, resumeText, totalQuestions) => `
-You are an expert technical interviewer conducting a ${role} interview.
+export const GENERATE_QUESTIONS_PROMPT = (
+  role,
+  resumeText,
+  totalQuestions,
+  companyTrack = 'General',
+  jobDescription = ''
+) => `
+You are an expert technical hiring bar raiser conducting a ${role} interview targeting the ${companyTrack.toUpperCase()} track.
 
-Analyze the candidate's resume below and generate exactly ${totalQuestions - 1} interview questions.
+Analyze the candidate's resume and job description (if provided) below and generate exactly ${totalQuestions - 1} interview questions.
 The FIRST question "Tell me about yourself" is already added — do NOT include it.
 
+TRACK GUIDELINES:
+${
+  companyTrack.toLowerCase() === 'amazon'
+    ? '- AMAZON TRACK: Emphasize 16 Leadership Principles (Customer Obsession, Ownership, Bias for Action, Dive Deep). Behavioral questions MUST assess STAR format. Technical questions evaluate scale and resilience.'
+    : companyTrack.toLowerCase() === 'google'
+    ? '- GOOGLE TRACK: Emphasize algorithmic optimality, Time & Space O(N) complexity trade-offs, edge case thoroughness, and Googliness/collaboration.'
+    : companyTrack.toLowerCase() === 'meta'
+    ? '- META TRACK: Emphasize fast-paced problem solving, product architecture, clean modular code, and high-throughput systems.'
+    : companyTrack.toLowerCase() === 'startup'
+    ? '- STARTUP / YC TRACK: Emphasize pragmatic MVP trade-offs, tech debt vs velocity, autonomy, and shipping value with minimal guidance.'
+    : '- GENERAL TECH TRACK: Balanced comprehensive assessment covering behavioral, system design, and algorithms.'
+}
+
+${
+  jobDescription
+    ? `TARGET JOB DESCRIPTION:
+${jobDescription}
+IMPORTANT: Cross-reference the candidate's resume with the target job description above. Tailor questions to probe any gaps and test the key requirements stated in the job description.`
+    : ''
+}
+
 RULES:
-1. Generate a realistic interview flow like real-world interviews:
-   - 1-2 behavioral questions (based on their experience, projects, and past roles from resume)
-   - 1-2 technical knowledge questions (specific to the ${role} role)
+1. Generate a realistic interview flow:
+   - 1-2 behavioral / architectural questions
+   - 1-2 technical knowledge questions specific to ${role}
    - 1 coding question (mark as code question)
 2. Questions should be SHORT and CRISP (1-2 sentences maximum)
-3. Reference specific skills, projects, or experience from the resume
+3. Reference specific skills, projects, or experience from their resume
 4. Gradually increase difficulty
-5. Make questions conversational — like a real interviewer would ask, not a quiz
 
 CODING QUESTION RULES:
-- For the coding question, randomly pick ONE of these formats:
-  a) "write" — Ask the candidate to write a function/solution from scratch
-  b) "fix" — Provide a buggy code snippet and ask them to find and fix the bug
-  c) "explain" — Provide a code snippet and ask them to explain what it does and how it works
-- Set the "codeType" field to "write", "fix", or "explain"
-- For "fix" and "explain", include the code snippet in the "codeSnippet" field
-- Specify the language based on the role
+- Pick ONE format:
+  a) "write" — Write a function/solution from scratch
+  b) "fix" — Provide buggy code and ask to fix it
+  c) "explain" — Provide code and ask to explain output and complexity
+- Set "codeType" to "write", "fix", or "explain"
+- Include 2 sample test cases in "testCases": [{"input": "...", "expected": "..."}]
+- Set "codeLanguage" to javascript or python
 
 RESPONSE FORMAT:
 Return ONLY a valid JSON array (no markdown, no code blocks, no extra text):
 [
   {
-    "text": "question text here",
+    "text": "Tell me about a time you resolved a major production bottleneck under tight latency SLAs.",
     "type": "behavioral",
     "isCodeQuestion": false
   },
   {
-    "text": "Write a function that reverses a linked list.",
+    "text": "Write a function twoSum(nums, target) that returns the indices of the two numbers that add up to target.",
     "type": "technical",
     "isCodeQuestion": true,
     "codeType": "write",
-    "codeLanguage": "javascript"
-  },
-  {
-    "text": "This function is supposed to filter even numbers but has a bug. Find and fix it.",
-    "type": "technical",
-    "isCodeQuestion": true,
-    "codeType": "fix",
     "codeLanguage": "javascript",
-    "codeSnippet": "function filterEvens(arr) {\\n  return arr.filter(n => n % 2 === 1);\\n}"
-  },
-  {
-    "text": "Explain what this code does and what the output would be.",
-    "type": "technical",
-    "isCodeQuestion": true,
-    "codeType": "explain",
-    "codeLanguage": "javascript",
-    "codeSnippet": "const result = [1,2,3].reduce((acc, n) => acc + n, 0);"
+    "testCases": [
+      { "input": "[2, 7, 11, 15], target = 9", "expected": "[0, 1]" },
+      { "input": "[3, 2, 4], target = 6", "expected": "[1, 2]" }
+    ]
   }
 ]
 
@@ -60,124 +74,162 @@ CANDIDATE RESUME:
 ${resumeText}
 `;
 
-export const INTERVIEW_GREETING_PROMPT = (role, candidateName) => `
-You are Natalie, a friendly and professional interviewer conducting a ${role} interview.
+export const INTERVIEW_GREETING_PROMPT = (
+  role,
+  candidateName,
+  persona = 'Natalie',
+  companyTrack = 'General'
+) => `
+You are ${persona}, conducting a ${role} interview targeting the ${companyTrack} track.
 
-Generate a SHORT and WARM greeting for the candidate named ${candidateName}, like a real interview opening:
-- Introduce yourself briefly (name and role)
-- Mention the ${role} position they are interviewing for
-- Make them feel comfortable: "Take your time, there are no wrong answers"
-- End by saying: "Let's start with the basics — tell me about yourself."
-- Keep it under 4 sentences total
-- Be warm, professional, and encouraging — like a real human interviewer
+PERSONA TONE:
+${
+  persona === 'Marcus'
+    ? '- Marcus: Sharp, direct Staff Architect. Passionate about system scale and edge cases. Professional but challenging.'
+    : persona === 'Elena'
+    ? '- Elena: Engineering Director. Focuses on architectural vision, trade-offs, and leadership impact. Calm and perceptive.'
+    : '- Natalie: Senior Hiring Manager. Warm, encouraging, conversational, and supportive.'
+}
+
+Generate a SHORT greeting for the candidate named ${candidateName} (under 4 sentences total):
+1. Introduce yourself briefly (${persona}, Interviewer for the ${companyTrack} ${role} loop)
+2. Welcome them and set expectations
+3. End by saying: "Let's start with the basics — tell me about yourself."
 
 Return ONLY the greeting text, no JSON, no markdown.
 `;
 
-export const FOLLOW_UP_PROMPT = (role, conversationHistory, nextQuestion) => `
-You are Natalie, a friendly and conversational interviewer conducting a ${role} interview.
+export const FOLLOW_UP_PROMPT = (
+  role,
+  conversationHistory,
+  nextQuestion,
+  persona = 'Natalie'
+) => `
+You are ${persona}, conducting a ${role} interview.
 
 CONVERSATION SO FAR:
 ${conversationHistory}
 
-IMPORTANT GUIDELINES:
+GUIDELINES:
 1. ONLY acknowledge what the candidate ACTUALLY said in their previous answer (1-2 sentences max)
-2. Reference their REAL response - do NOT make up what they said
-3. End with a brief transition like "Let's move on to the next one." or "Here's the next question."
-4. Do NOT repeat or include the next question text — it will be shown separately
-5. Be warm, conversational, and CONCISE
+2. Reference their REAL response — do NOT make up what they said
+3. Transition concisely to the next topic (e.g., "Let's dive into the next question.")
+4. Do NOT repeat the next question text — it will be shown separately
+5. Match ${persona}'s tone (${
+  persona === 'Marcus' ? 'direct and analytical' : persona === 'Elena' ? 'strategic and thoughtful' : 'warm and conversational'
+})
 
-Return ONLY your acknowledgment text, no JSON, no markdown. Do NOT include the next question.
+Return ONLY your acknowledgment text, no JSON, no markdown.
 `;
 
-export const FEEDBACK_PROMPT = (role, conversationHistory, codeSubmissions) => `
-You are an expert interview evaluator. Analyze this complete ${role} interview and provide detailed feedback.
+export const FEEDBACK_PROMPT = (
+  role,
+  conversationHistory,
+  codeSubmissions,
+  companyTrack = 'General',
+  speechMetrics = null
+) => `
+You are an expert executive interviewer evaluating a ${role} candidate on the ${companyTrack} track.
 
 COMPLETE INTERVIEW CONVERSATION:
 ${conversationHistory}
 
 ${codeSubmissions ? `CODE SUBMISSIONS:\n${codeSubmissions}` : ''}
 
+${
+  speechMetrics
+    ? `SPEECH & PACING METRICS:
+- Total words spoken: ${speechMetrics.totalWords}
+- Estimated speaking pace: ${speechMetrics.wpm || 135} Words Per Minute (Ideal: 130-160 WPM)
+- Filler words counted: ${speechMetrics.fillerCount} (${speechMetrics.fillerWords?.join(', ') || 'None'})
+- Fluency Index: ${speechMetrics.fluencyScore}/100`
+    : ''
+}
+
 IMPORTANT: Respond with ONLY a valid JSON object. No markdown, no code blocks, no extra text.
 Address the candidate directly using "you" and "your".
 
 Use this EXACT JSON structure:
 {
-  "overallScore": 75,
+  "overallScore": 78,
   "categoryScores": {
     "communicationSkills": {
       "score": 80,
-      "comment": "Your communication was clear and well-structured..."
+      "comment": "Your communication was structured..."
     },
     "technicalKnowledge": {
-      "score": 70,
-      "comment": "You demonstrated solid understanding of..."
+      "score": 75,
+      "comment": "Demonstrated solid understanding of..."
     },
     "problemSolving": {
       "score": 75,
-      "comment": "Your approach to problem-solving showed..."
+      "comment": "Your approach showed structured breakdown..."
     },
     "codeQuality": {
-      "score": 65,
-      "comment": "Your code submissions showed..."
+      "score": 70,
+      "comment": "Your code was readable with..."
     },
     "confidence": {
       "score": 80,
-      "comment": "You appeared confident when..."
+      "comment": "Maintained composure throughout..."
     }
   },
+  "speechAnalysis": {
+    "wpm": ${speechMetrics?.wpm || 140},
+    "pacingAssessment": "Optimal FAANG pacing maintained throughout the session.",
+    "fillerWordsCount": ${speechMetrics?.fillerCount || 3},
+    "fluencyRating": "High Fluency"
+  },
   "strengths": [
-    "Specific strength 1 with example from their actual answers",
-    "Specific strength 2 with example from their actual answers"
+    "Specific strength 1 with exact reference to their answers",
+    "Specific strength 2 with exact reference to their answers"
   ],
   "areasOfImprovement": [
-    "Specific area 1 with constructive suggestion",
-    "Specific area 2 with constructive suggestion"
+    "Specific area 1 with constructive technical action item",
+    "Specific area 2 with constructive technical action item"
   ],
-  "finalAssessment": "A 2-3 sentence overall assessment of the candidate's performance."
+  "finalAssessment": "A 2-3 sentence overall assessment of candidate performance against the ${companyTrack} track bar."
 }
 
-Be specific - reference ACTUAL things they said during the interview.
-Score each category between 0-100 based on their actual performance.
+Reference ACTUAL answers they provided.
 `;
 
-export const EVALUATE_CODE_PROMPT = (question, code, language, codeType) => `
-You are an expert code reviewer evaluating a candidate's solution during a technical interview.
+export const EVALUATE_CODE_PROMPT = (role, question, code, language) => `
+You are an expert code reviewer evaluating a candidate's code submission for a ${role} interview.
 
 QUESTION:
 ${question}
 
-TASK TYPE: ${codeType || 'write'} (${codeType === 'fix' ? 'candidate was asked to fix a bug' : codeType === 'explain' ? 'candidate was asked to explain the code' : 'candidate was asked to write code from scratch'})
+LANGUAGE: ${language}
 
-CANDIDATE'S RESPONSE (${language}):
+CANDIDATE'S CODE:
+\`\`\`${language}
 ${code}
+\`\`\`
 
-Evaluate based on the task type:
-- For "write": Check correctness, efficiency, and code quality
-- For "fix": Check if the bug was correctly identified and fixed
-- For "explain": Check if the explanation is accurate, clear, and covers key concepts
+Evaluate the code for:
+1. Correctness (does it solve the problem or fix the bug?)
+2. Code quality (readability, naming, structure)
+3. Edge cases handled
+4. Time and Space complexity
 
-Respond with ONLY a valid JSON object (no markdown, no code blocks):
+Return ONLY a valid JSON object (no markdown, no code blocks, no extra text):
 {
   "isCorrect": true,
-  "score": 80,
-  "feedback": "Brief evaluation based on the task type",
-  "suggestions": "What could be improved"
+  "score": 85,
+  "feedback": "2-3 sentences of constructive feedback.",
+  "timeComplexity": "O(N)",
+  "spaceComplexity": "O(1)",
+  "suggestions": "A specific tip or optimal alternative."
 }
-
-Score between 0-100. Be constructive and specific.
 `;
 
 export const buildConversationHistory = (messages) => {
   if (!messages || messages.length === 0) return 'No conversation yet.';
-
-  // Use the last 20 messages to keep within context limits
-  const recentMessages = messages.slice(-20);
-
-  return recentMessages
-    .map((msg) => {
-      const role = msg.role === 'interviewer' ? 'Interviewer' : 'Candidate';
-      return `${role}: ${msg.content}`;
-    })
+  return messages
+    .map(
+      (m) =>
+        `${m.role === 'interviewer' ? 'Interviewer' : 'Candidate'}: ${m.content}`
+    )
     .join('\n\n');
 };

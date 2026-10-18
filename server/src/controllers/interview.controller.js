@@ -2,7 +2,14 @@ import * as interviewService from '../services/interview.service.js';
 
 export const startInterview = async (req, res, next) => {
   try {
-    const { role, resumeText, totalQuestions } = req.body;
+    const {
+      role,
+      resumeText,
+      totalQuestions,
+      companyTrack,
+      interviewerPersona,
+      jobDescription,
+    } = req.body;
 
     if (!role) {
       return res
@@ -20,7 +27,10 @@ export const startInterview = async (req, res, next) => {
       role,
       resumeText,
       req.user.name,
-      totalQuestions || 5
+      totalQuestions || 5,
+      companyTrack || 'General',
+      interviewerPersona || 'Natalie',
+      jobDescription || ''
     );
 
     return res.status(201).json({ success: true, data: result });

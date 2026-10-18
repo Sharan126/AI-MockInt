@@ -19,7 +19,12 @@ function InterviewCard({ interview, onClick, onDelete }) {
   return (
     <div className="interview-card" onClick={onClick}>
       <div className="interview-card-top">
-        <h3 className="interview-card-role">{interview.role}</h3>
+        <div>
+          <h3 className="interview-card-role">{interview.role}</h3>
+          {interview.companyTrack && (
+            <span className="card-track-pill">{interview.companyTrack} Track</span>
+          )}
+        </div>
         <span className={`interview-badge ${statusClass}`}>{statusLabel}</span>
       </div>
 

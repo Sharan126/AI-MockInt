@@ -20,6 +20,23 @@
   margin: 0;
 }
 
+.card-track-pill {
+  display: inline-block;
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #7c3aed;
+  background: rgba(124, 58, 237, 0.1);
+  padding: 2px 7px;
+  border-radius: 4px;
+  margin-top: 4px;
+}
+
+[data-theme='dark'] .card-track-pill {
+  color: #a78bfa;
+  background: rgba(167, 139, 250, 0.2);
+}
+
 .interview-badge {
   font-family: 'Open Sans', sans-serif;
   font-size: 12px;

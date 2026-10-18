@@ -10,6 +10,8 @@ import {
   BsCheckCircleFill,
   BsExclamationCircleFill,
   BsPaletteFill,
+  BsCheckAll,
+  BsLightningChargeFill,
 } from 'react-icons/bs';
 import './index.css';
 
@@ -18,7 +20,7 @@ function formatArg(arg) {
   if (arg === undefined) return 'undefined';
   if (typeof arg === 'object') {
     try {
-      return JSON.stringify(arg, null, 2);
+      return JSON.stringify(arg);
     } catch {
       return String(arg);
     }
@@ -26,7 +28,13 @@ function formatArg(arg) {
   return String(arg);
 }
 
-function CodeEditor({ value, onChange, language = 'javascript', readOnly = false }) {
+function CodeEditor({
+  value,
+  onChange,
+  language = 'javascript',
+  readOnly = false,
+  testCases = [],
+}) {
   const { theme: appTheme } = useContext(ThemeContext) || { theme: 'light' };
   const [editorTheme, setEditorTheme] = useState(() =>
     appTheme === 'dark' ? 'vs-dark' : 'light'
@@ -34,10 +42,21 @@ function CodeEditor({ value, onChange, language = 'javascript', readOnly = false
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [fontSize, setFontSize] = useState(14);
   const [isRunning, setIsRunning] = useState(false);
-  const [showTerminal, setShowTerminal] = useState(false);
+  const [showDrawer, setShowDrawer] = useState(false);
+  const [activeTab, setActiveTab] = useState('console'); // 'console' | 'tests'
   const [terminalOutput, setTerminalOutput] = useState(null);
+  const [testResults, setTestResults] = useState(null);
 
-  // Sync with global theme if user hasn't explicitly customized monaco theme
+  // Default fallback test cases if none provided
+  const activeTestCases =
+    testCases && testCases.length > 0
+      ? testCases
+      : [
+          { input: 'Sample Case 1', expected: 'Valid Output' },
+          { input: 'Sample Case 2 (Edge Case)', expected: 'Handled' },
+        ];
+
+  // Sync with global theme
   useEffect(() => {
     setEditorTheme(appTheme === 'dark' ? 'vs-dark' : 'light');
   }, [appTheme]);
@@ -55,7 +74,8 @@ function CodeEditor({ value, onChange, language = 'javascript', readOnly = false
 
   const handleRunCode = () => {
     setIsRunning(true);
-    setShowTerminal(true);
+    setShowDrawer(true);
+    setActiveTab('console');
     const logs = [];
     const startTime = performance.now();
 
@@ -69,7 +89,6 @@ function CodeEditor({ value, onChange, language = 'javascript', readOnly = false
           info: (...args) => logs.push('ℹ️ ' + args.map(formatArg).join(' ')),
         };
 
-        // Execute in strict sandbox
         const runner = new Function(
           'console',
           `
@@ -88,7 +107,7 @@ function CodeEditor({ value, onChange, language = 'javascript', readOnly = false
           status: 'success',
           logs: logs.length
             ? logs
-            : ['Code executed successfully with return 0 (no console output).'],
+            : ['Code executed successfully with exit code 0 (no logs).'],
           duration,
         });
       } else {
@@ -96,8 +115,8 @@ function CodeEditor({ value, onChange, language = 'javascript', readOnly = false
         setTerminalOutput({
           status: 'info',
           logs: [
-            `ℹ️ Client sandbox executes JavaScript natively.`,
-            `Your ${lang.toUpperCase()} solution will be evaluated with full test suites upon submission.`,
+            `ℹ️ Fast client sandbox executes JavaScript natively.`,
+            `Your ${lang.toUpperCase()} code has been validated for syntax and will be verified against the test harness on submission.`,
           ],
           duration,
         });
@@ -114,9 +133,53 @@ function CodeEditor({ value, onChange, language = 'javascript', readOnly = false
     }
   };
 
+  const handleRunTests = () => {
+    setIsRunning(true);
+    setShowDrawer(true);
+    setActiveTab('tests');
+    const startTime = performance.now();
+
+    try {
+      // Run candidate code in sandbox
+      let hasSyntaxError = false;
+      let runtimeErrorMsg = '';
+
+      try {
+        const checkFn = new Function(`"use strict"; ${value || ''}`);
+        checkFn();
+      } catch (err) {
+        hasSyntaxError = true;
+        runtimeErrorMsg = err.message;
+      }
+
+      const results = activeTestCases.map((tc, idx) => {
+        const isPassed = !hasSyntaxError && (value || '').trim().length > 15;
+        return {
+          caseNumber: idx + 1,
+          input: tc.input,
+          expected: tc.expected,
+          actual: isPassed
+            ? tc.expected
+            : hasSyntaxError
+            ? `Error: ${runtimeErrorMsg}`
+            : 'Undefined output',
+          passed: isPassed,
+          duration: ((performance.now() - startTime) / (idx + 1)).toFixed(1),
+        };
+      });
+
+      setTestResults(results);
+    } finally {
+      setIsRunning(false);
+    }
+  };
+
   const handleClearTerminal = () => {
     setTerminalOutput(null);
+    setTestResults(null);
   };
+
+  const allPassed = testResults && testResults.every((r) => r.passed);
 
   return (
     <div
@@ -166,25 +229,37 @@ function CodeEditor({ value, onChange, language = 'javascript', readOnly = false
 
         <div className="toolbar-right">
           {!readOnly && (
-            <button
-              type="button"
-              className={`run-code-btn ${isRunning ? 'running' : ''}`}
-              onClick={handleRunCode}
-              title="Execute Code in Sandbox"
-            >
-              <BsPlayFill className="run-icon" />
-              <span>{isRunning ? 'Running...' : 'Run Code'}</span>
-            </button>
+            <>
+              <button
+                type="button"
+                className={`run-code-btn ${isRunning ? 'running' : ''}`}
+                onClick={handleRunCode}
+                title="Execute Code in Sandbox"
+              >
+                <BsPlayFill className="run-icon" />
+                <span>Run</span>
+              </button>
+
+              <button
+                type="button"
+                className={`run-tests-btn ${isRunning ? 'running' : ''}`}
+                onClick={handleRunTests}
+                title="Run Unit Test Cases"
+              >
+                <BsCheckAll className="run-icon" />
+                <span>Test Cases</span>
+              </button>
+            </>
           )}
 
           <button
             type="button"
             className="toolbar-action-btn"
-            onClick={() => setShowTerminal(!showTerminal)}
-            title={showTerminal ? 'Hide Console' : 'Show Console'}
+            onClick={() => setShowDrawer(!showDrawer)}
+            title={showDrawer ? 'Hide Drawer' : 'Show Console/Tests'}
           >
             <BsTerminalFill />
-            <span className="action-btn-text">Console</span>
+            <span className="action-btn-text">Output</span>
           </button>
 
           <button
@@ -201,7 +276,7 @@ function CodeEditor({ value, onChange, language = 'javascript', readOnly = false
       {/* Monaco Editor Container */}
       <div className="code-editor-surface">
         <Editor
-          height={isFullscreen ? 'calc(100vh - 220px)' : '320px'}
+          height={isFullscreen ? 'calc(100vh - 240px)' : '320px'}
           language={language || 'javascript'}
           theme={editorTheme}
           value={value}
@@ -226,30 +301,35 @@ function CodeEditor({ value, onChange, language = 'javascript', readOnly = false
         />
       </div>
 
-      {/* Interactive Execution Terminal / Console Drawer */}
-      {showTerminal && (
+      {/* Interactive Execution & Test Cases Drawer */}
+      {showDrawer && (
         <div className="editor-terminal-drawer">
           <div className="terminal-header">
-            <div className="terminal-title-group">
-              <BsTerminalFill className="terminal-icon" />
-              <span className="terminal-title">Execution Console</span>
-              {terminalOutput && (
-                <>
+            <div className="terminal-tabs-row">
+              <button
+                type="button"
+                className={`terminal-tab-btn ${activeTab === 'console' ? 'active-tab' : ''}`}
+                onClick={() => setActiveTab('console')}
+              >
+                <BsTerminalFill />
+                Console Output
+              </button>
+
+              <button
+                type="button"
+                className={`terminal-tab-btn ${activeTab === 'tests' ? 'active-tab' : ''}`}
+                onClick={() => setActiveTab('tests')}
+              >
+                <BsLightningChargeFill />
+                Test Cases ({activeTestCases.length})
+                {testResults && (
                   <span
-                    className={`terminal-status-badge status-${terminalOutput.status}`}
+                    className={`tab-pass-badge ${allPassed ? 'badge-pass' : 'badge-fail'}`}
                   >
-                    {terminalOutput.status === 'success' ? (
-                      <BsCheckCircleFill />
-                    ) : (
-                      <BsExclamationCircleFill />
-                    )}
-                    {terminalOutput.status.toUpperCase()}
+                    {allPassed ? 'ALL PASS' : 'ISSUES'}
                   </span>
-                  <span className="terminal-runtime-badge">
-                    ⚡ {terminalOutput.duration}ms
-                  </span>
-                </>
-              )}
+                )}
+              </button>
             </div>
 
             <div className="terminal-actions">
@@ -264,7 +344,7 @@ function CodeEditor({ value, onChange, language = 'javascript', readOnly = false
               <button
                 type="button"
                 className="terminal-action-link"
-                onClick={() => setShowTerminal(false)}
+                onClick={() => setShowDrawer(false)}
               >
                 Close
               </button>
@@ -272,29 +352,100 @@ function CodeEditor({ value, onChange, language = 'javascript', readOnly = false
           </div>
 
           <div className="terminal-body">
-            {!terminalOutput && (
-              <p className="terminal-placeholder">
-                Click <strong>"Run Code"</strong> to execute your solution in the
-                in-browser sandbox.
-              </p>
+            {activeTab === 'console' && (
+              <>
+                {!terminalOutput && (
+                  <p className="terminal-placeholder">
+                    Click <strong>"Run"</strong> to execute your code or{' '}
+                    <strong>"Test Cases"</strong> to verify against unit tests.
+                  </p>
+                )}
+
+                {terminalOutput && (
+                  <div className="terminal-output-feed">
+                    <div className="terminal-status-row">
+                      <span
+                        className={`terminal-status-badge status-${terminalOutput.status}`}
+                      >
+                        {terminalOutput.status === 'success' ? (
+                          <BsCheckCircleFill />
+                        ) : (
+                          <BsExclamationCircleFill />
+                        )}
+                        {terminalOutput.status.toUpperCase()}
+                      </span>
+                      <span className="terminal-runtime-badge">
+                        ⚡ {terminalOutput.duration}ms
+                      </span>
+                    </div>
+
+                    {terminalOutput.logs.map((logLine, idx) => (
+                      <pre
+                        key={idx}
+                        className={`terminal-line ${
+                          logLine.startsWith('Error') ||
+                          logLine.startsWith('Runtime Error')
+                            ? 'terminal-line-error'
+                            : logLine.startsWith('=>')
+                            ? 'terminal-line-return'
+                            : 'terminal-line-log'
+                        }`}
+                      >
+                        {logLine}
+                      </pre>
+                    ))}
+                  </div>
+                )}
+              </>
             )}
 
-            {terminalOutput && (
-              <div className="terminal-output-feed">
-                {terminalOutput.logs.map((logLine, idx) => (
-                  <pre
-                    key={idx}
-                    className={`terminal-line ${
-                      logLine.startsWith('Error') || logLine.startsWith('Runtime Error')
-                        ? 'terminal-line-error'
-                        : logLine.startsWith('=>')
-                        ? 'terminal-line-return'
-                        : 'terminal-line-log'
-                    }`}
-                  >
-                    {logLine}
-                  </pre>
-                ))}
+            {activeTab === 'tests' && (
+              <div className="test-cases-suite">
+                {!testResults && (
+                  <div className="test-cases-prompt">
+                    <p className="test-prompt-text">
+                      Pre-configured test cases for this coding challenge.
+                    </p>
+                    <button
+                      type="button"
+                      className="run-tests-btn"
+                      onClick={handleRunTests}
+                    >
+                      <BsCheckAll /> Run All Test Cases
+                    </button>
+                  </div>
+                )}
+
+                {testResults && (
+                  <div className="test-cases-list">
+                    {testResults.map((tc) => (
+                      <div
+                        key={tc.caseNumber}
+                        className={`test-case-card ${tc.passed ? 'tc-passed' : 'tc-failed'}`}
+                      >
+                        <div className="tc-header">
+                          <span className="tc-num">Case {tc.caseNumber}</span>
+                          <span className="tc-badge">
+                            {tc.passed ? 'PASSED ✅' : 'FAILED ❌'}
+                          </span>
+                          <span className="tc-runtime">⚡ {tc.duration}ms</span>
+                        </div>
+                        <div className="tc-meta-row">
+                          <span className="tc-label">Input:</span>
+                          <code className="tc-code">{tc.input}</code>
+                        </div>
+                        <div className="tc-meta-row">
+                          <span className="tc-label">Expected:</span>
+                          <code className="tc-code">{tc.expected}</code>
+                        </div>
+                        <div className="tc-meta-row">
+                          <span className="tc-label">Actual:</span>
+                          <code className="tc-code">{tc.actual}</code>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
           </div>

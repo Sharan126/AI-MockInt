@@ -53,6 +53,8 @@ function InterviewPage() {
 
   const [currentQuestionNum, setCurrentQuestionNum] = useState(1);
   const [totalQuestions, setTotalQuestions] = useState(5);
+  const [companyTrack, setCompanyTrack] = useState('General');
+  const [interviewerPersona, setInterviewerPersona] = useState('Natalie');
   const [currentQuestion, setCurrentQuestion] = useState(null);
   const [interviewerText, setInterviewerText] = useState('');
   const [farewellMessage, setFarewellMessage] = useState('');
@@ -64,6 +66,8 @@ function InterviewPage() {
         if (data) {
           setCurrentQuestionNum(data.currentQuestion || 1);
           setTotalQuestions(data.totalQuestions || 5);
+          setCompanyTrack(data.companyTrack || 'General');
+          setInterviewerPersona(data.interviewerPersona || 'Natalie');
           const q =
             (data.questions && data.questions[data.currentQuestion - 1]) ||
             data.questions?.[0] ||
@@ -72,7 +76,9 @@ function InterviewPage() {
           const lastMsg = data.messages
             ?.filter((m) => m.role === 'interviewer')
             ?.slice(-1)[0];
-          setInterviewerText(lastMsg?.content || 'Welcome to the interview!');
+          setInterviewerText(
+            lastMsg?.content || `Welcome to your ${data.companyTrack || 'General'} Track interview!`
+          );
           if (location.state?.audio || data.lastAudio) {
             setCurrentAudio(location.state?.audio || data.lastAudio);
             setInterviewerState(STATE_SPEAKING);
@@ -221,6 +227,7 @@ function InterviewPage() {
     <div className="interview-layout">
       <div className="interview-topbar">
         <div className="topbar-left">
+          <span className="topbar-track-badge">{companyTrack} Track</span>
           <span className="topbar-question-label">
             Question {currentQuestionNum} of {totalQuestions}
           </span>
@@ -249,8 +256,14 @@ function InterviewPage() {
         <div className="interviewer-avatar-block">
           <AiOrb state={interviewerState} isAudioPlaying={isSpeaking} />
           <div className="interviewer-avatar-info">
-            <span className="interviewer-avatar-name">Natalie</span>
-            <span className="interviewer-avatar-role">Senior AI Interviewer</span>
+            <span className="interviewer-avatar-name">{interviewerPersona}</span>
+            <span className="interviewer-avatar-role">
+              {interviewerPersona === 'Marcus'
+                ? 'Staff Systems Architect'
+                : interviewerPersona === 'Elena'
+                ? 'Engineering Director'
+                : 'Senior Hiring Manager'}
+            </span>
           </div>
         </div>
 
@@ -459,6 +472,7 @@ function InterviewPage() {
                       }
                       onChange={(val) => setCode(val || '')}
                       language={currentQuestion.codeLanguage || codeLanguage}
+                      testCases={currentQuestion.testCases || []}
                     />
                     <button
                       className={`submit-code-btn ${submitting || !code.trim() ? 'submit-code-btn-disabled' : ''}`}

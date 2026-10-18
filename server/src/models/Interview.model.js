@@ -53,6 +53,22 @@ const interviewSchema = new mongoose.Schema(
       type: Number,
       default: null,
     },
+    companyTrack: {
+      type: String,
+      default: 'General',
+    },
+    interviewerPersona: {
+      type: String,
+      default: 'Natalie',
+    },
+    jobDescription: {
+      type: String,
+      default: '',
+    },
+    speechMetrics: {
+      type: mongoose.Schema.Types.Mixed,
+      default: null,
+    },
   },
   {
     timestamps: true,

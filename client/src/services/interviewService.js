@@ -15,8 +15,22 @@ const getResume = async () => {
   return response.data.data;
 };
 
-const startInterview = async (role, resumeText, totalQuestions) => {
-  const response = await API.post('/interview/start', { role, resumeText, totalQuestions });
+const startInterview = async (
+  role,
+  resumeText,
+  totalQuestions = 5,
+  companyTrack = 'General',
+  interviewerPersona = 'Natalie',
+  jobDescription = ''
+) => {
+  const response = await API.post('/interview/start', {
+    role,
+    resumeText,
+    totalQuestions,
+    companyTrack,
+    interviewerPersona,
+    jobDescription,
+  });
   return response.data.data;
 };
 

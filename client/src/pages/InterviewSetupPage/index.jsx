@@ -17,6 +17,11 @@ import {
   BsStar,
   BsFileEarmarkArrowUp,
   BsCheckCircleFill,
+  BsBriefcaseFill,
+  BsPersonBadgeFill,
+  BsBuildingCheck,
+  BsBullseye,
+  BsFileTextFill,
 } from 'react-icons/bs';
 import { FaPython, FaReact, FaJava } from 'react-icons/fa';
 import toast from 'react-hot-toast';
@@ -57,104 +62,177 @@ const DIFFICULTY_ICONS = {
   ),
 };
 
+const COMPANY_TRACKS = [
+  {
+    id: 'General',
+    label: 'General Tech Track',
+    badge: 'Standard',
+    desc: 'Balanced FAANG-grade technical, behavioral, and problem-solving interview.',
+    icon: '🌐',
+  },
+  {
+    id: 'Amazon',
+    label: 'Amazon Track',
+    badge: '16 LP & STAR',
+    desc: 'Bar-raiser focus on Amazon Leadership Principles, customer obsession, and scale.',
+    icon: '📦',
+  },
+  {
+    id: 'Google',
+    label: 'Google Track',
+    badge: 'Algorithms & Scale',
+    desc: 'Algorithmic optimality, deep edge cases, and architectural trade-offs.',
+    icon: '🔍',
+  },
+  {
+    id: 'Meta',
+    label: 'Meta Track',
+    badge: 'High Velocity',
+    desc: 'Rapid execution, clean modular API design, and distributed throughput.',
+    icon: '♾️',
+  },
+  {
+    id: 'Startup',
+    label: 'Startup / YC Track',
+    badge: 'Pragmatic MVP',
+    desc: 'Autonomous problem-solving, product intuition, and shipping fast under constraints.',
+    icon: '🚀',
+  },
+];
+
+const INTERVIEWER_PERSONAS = [
+  {
+    id: 'Natalie',
+    name: 'Natalie',
+    title: 'Senior Hiring Manager',
+    desc: 'Encouraging, conversational, and supportive. Ideal for practicing flow and confidence.',
+    avatarColor: '#2563eb',
+    badge: 'Supportive',
+  },
+  {
+    id: 'Marcus',
+    name: 'Marcus',
+    title: 'Staff Systems Architect',
+    desc: 'Direct and analytical. Probes deep into failure recovery, concurrency, and complexity.',
+    avatarColor: '#7c3aed',
+    badge: 'Deep Tech & Strict',
+  },
+  {
+    id: 'Elena',
+    name: 'Elena',
+    title: 'Engineering Director',
+    desc: 'Focuses on cross-functional alignment, strategic roadmaps, and architectural trade-offs.',
+    avatarColor: '#059669',
+    badge: 'Executive & Vision',
+  },
+];
+
 function InterviewSetupPage() {
   const navigate = useNavigate();
 
   const [step, setStep] = useState(1);
   const [selectedRole, setSelectedRole] = useState('');
+  const [selectedTrack, setSelectedTrack] = useState('General');
   const [selectedDifficulty, setSelectedDifficulty] = useState('medium');
+  const [selectedPersona, setSelectedPersona] = useState('Natalie');
+  const [jobDescription, setJobDescription] = useState('');
   const [resumeText, setResumeText] = useState('');
   const [resumeFileName, setResumeFileName] = useState('');
   const [loading, setLoading] = useState(false);
   const [uploadingResume, setUploadingResume] = useState(false);
 
   useEffect(() => {
-  const loadResume = async () => {
-    try {
-      const data = await getResume();
-      if (data) {
-        setResumeText(data.text);
-        setResumeFileName(data.fileName);
+    const loadResume = async () => {
+      try {
+        const data = await getResume();
+        if (data) {
+          setResumeText(data.text);
+          setResumeFileName(data.fileName);
+        }
+      } catch {
+        // No resume found - that's okay
       }
+    };
+
+    loadResume();
+  }, []);
+
+  const handleResumeUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    if (file.type !== 'application/pdf') {
+      toast.error('Please upload a PDF file.');
+      return;
+    }
+
+    setUploadingResume(true);
+
+    try {
+      const data = await uploadResume(file);
+      setResumeText(data.text);
+      setResumeFileName(data.fileName);
+      toast.success('Resume uploaded successfully!');
     } catch (error) {
-      // No resume found - that's okay
+      const message =
+        error.response?.data?.message || 'Failed to upload resume';
+      toast.error(message);
+    } finally {
+      setUploadingResume(false);
     }
   };
 
-  loadResume();
-}, []);
+  const handleStartInterview = async () => {
+    if (!selectedRole) {
+      toast.error('Please select a role.');
+      return;
+    }
+    if (!resumeText) {
+      toast.error('Please upload your resume.');
+      return;
+    }
 
-const handleResumeUpload = async (e) => {
-  const file = e.target.files[0];
-  if (!file) return;
+    setLoading(true);
 
-  if (file.type !== 'application/pdf') {
-    toast.error('Please upload a PDF file.');
-    return;
-  }
+    try {
+      const difficultyConfig = DIFFICULTY_LEVELS.find(
+        (d) => d.id === selectedDifficulty
+      );
+      const totalQuestions = difficultyConfig ? difficultyConfig.questions : 5;
 
-  setUploadingResume(true);
+      const data = await startInterview(
+        selectedRole,
+        resumeText,
+        totalQuestions,
+        selectedTrack,
+        selectedPersona,
+        jobDescription
+      );
 
-  try {
-    const data = await uploadResume(file);
-    setResumeText(data.text);
-    setResumeFileName(data.fileName);
-    toast.success('Resume uploaded successfully!');
-  } catch (error) {
-    const message =
-      error.response?.data?.message || 'Failed to upload resume';
-    toast.error(message);
-  } finally {
-    setUploadingResume(false);
-  }
-};
+      toast.success('Interview started!');
+      navigate(`/interview/${data.interviewId}`, {
+        state: { audio: data.audio },
+      });
+    } catch (error) {
+      const message =
+        error.response?.data?.message || 'Failed to start interview';
+      toast.error(message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-const handleStartInterview = async () => {
-  if (!selectedRole) {
-    toast.error('Please select a role.');
-    return;
-  }
-  if (!resumeText) {
-    toast.error('Please upload your resume.');
-    return;
-  }
+  const handleNext = () => {
+    if (step === 1 && !selectedRole) {
+      toast.error('Please select an engineering role.');
+      return;
+    }
+    setStep((prev) => Math.min(prev + 1, 4));
+  };
 
-  setLoading(true);
-
-  try {
-    const difficultyConfig = DIFFICULTY_LEVELS.find(
-      (d) => d.id === selectedDifficulty
-    );
-    const totalQuestions = difficultyConfig ? difficultyConfig.questions : 5;
-    const data = await startInterview(
-      selectedRole,
-      resumeText,
-      totalQuestions
-    );
-    toast.success('Interview started!');
-    navigate(`/interview/${data.interviewId}`, {
-      state: { audio: data.audio },
-    });
-  } catch (error) {
-    const message =
-      error.response?.data?.message || 'Failed to start interview';
-    toast.error(message);
-  } finally {
-    setLoading(false);
-  }
-};
-
-const handleNext = () => {
-  if (step === 1 && !selectedRole) {
-    toast.error('Please select a role.');
-    return;
-  }
-  setStep((prev) => Math.min(prev + 1, 3));
-};
-
-const handleBack = () => {
-  setStep((prev) => Math.max(prev - 1, 1));
-};
+  const handleBack = () => {
+    setStep((prev) => Math.max(prev - 1, 1));
+  };
 
   if (loading) {
     return (
@@ -164,32 +242,43 @@ const handleBack = () => {
             <span className="visually-hidden">Loading...</span>
           </div>
           <h2 className="setup-preparing-heading">
-            Preparing Your Interview...
+            Personalizing Your Interview...
           </h2>
           <p className="setup-preparing-text">
-            AI is analyzing your resume and generating personalized questions for
-            the <strong>{selectedRole}</strong> role.
+            Configuring <strong>{selectedTrack} Track</strong> with interviewer{' '}
+            <strong>{selectedPersona}</strong> for the{' '}
+            <strong>{selectedRole}</strong> loop.
           </p>
           <div className="setup-preparing-steps">
             <div className="setup-prep-step">
               <BsCheckCircleFill className="setup-prep-step-icon-active" />
-              <span className="setup-prep-step-text">Analyzing resume</span>
+              <span className="setup-prep-step-text">
+                Analyzing resume against {selectedTrack} hiring bar
+              </span>
             </div>
+            {jobDescription && (
+              <div className="setup-prep-step">
+                <BsCheckCircleFill className="setup-prep-step-icon-active" />
+                <span className="setup-prep-step-text">
+                  Matching target job description & probing skill gaps
+                </span>
+              </div>
+            )}
             <div className="setup-prep-step">
               <BsCheckCircleFill className="setup-prep-step-icon-active" />
               <span className="setup-prep-step-text">
-                Generating questions
+                Generating questions & coding test cases
               </span>
             </div>
             <div className="setup-prep-step">
               <BsCheckCircleFill className="setup-prep-step-icon-pending" />
               <span className="setup-prep-step-text">
-                Setting up voice interviewer
+                Synthesizing {selectedPersona}&apos;s voice audio
               </span>
             </div>
           </div>
           <p className="setup-preparing-hint">
-            This may take 10-15 seconds...
+            This takes about 10-15 seconds...
           </p>
         </div>
       </div>
@@ -199,77 +288,223 @@ const handleBack = () => {
   return (
     <div className="setup-page">
       <div className="setup-container">
+        {/* Multi-Step Indicator */}
         <div className="setup-step-indicator">
           <span
             className={`setup-step-badge ${step >= 1 ? 'setup-step-active' : ''}`}
           >
-            1. Role
+            1. Role & Track
           </span>
           <span
             className={`setup-step-badge ${step >= 2 ? 'setup-step-active' : ''}`}
           >
-            2. Difficulty
+            2. Difficulty & Persona
           </span>
           <span
             className={`setup-step-badge ${step >= 3 ? 'setup-step-active' : ''}`}
           >
-            3. Resume
+            3. Job Match (Optional)
+          </span>
+          <span
+            className={`setup-step-badge ${step >= 4 ? 'setup-step-active' : ''}`}
+          >
+            4. Resume & Launch
           </span>
         </div>
 
+        {/* STEP 1: ROLE & COMPANY TRACK */}
         {step === 1 && (
-          <div className="setup-section">
-            <h2 className="setup-section-heading">Select Interview Role</h2>
-            <div className="setup-roles-grid">
-              {INTERVIEW_ROLES.map((role) => {
-                const RoleIcon = ROLE_ICONS[role.id];
-                return (
+          <div className="setup-section-wrapper">
+            <div className="setup-section">
+              <div className="section-title-row">
+                <BsBriefcaseFill className="section-title-icon" />
+                <div>
+                  <h2 className="setup-section-heading">Select Engineering Role</h2>
+                  <p className="setup-section-sub">
+                    Pick the primary position you are targeting for this simulation.
+                  </p>
+                </div>
+              </div>
+
+              <div className="setup-roles-grid">
+                {INTERVIEW_ROLES.map((role) => {
+                  const RoleIcon = ROLE_ICONS[role.id];
+                  return (
+                    <button
+                      key={role.id}
+                      type="button"
+                      className={`setup-role-card ${selectedRole === role.title ? 'setup-role-selected' : ''}`}
+                      onClick={() => setSelectedRole(role.title)}
+                    >
+                      {RoleIcon && <RoleIcon className="setup-role-icon" />}
+                      <h3 className="setup-role-title">{role.title}</h3>
+                      <p className="setup-role-desc">{role.description}</p>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="setup-section" style={{ marginTop: '32px' }}>
+              <div className="section-title-row">
+                <BsBuildingCheck className="section-title-icon" />
+                <div>
+                  <h2 className="setup-section-heading">
+                    Target Company / Track Preset
+                  </h2>
+                  <p className="setup-section-sub">
+                    Calibrate the interview loop, behavioral rubrics, and technical depth.
+                  </p>
+                </div>
+              </div>
+
+              <div className="setup-tracks-grid">
+                {COMPANY_TRACKS.map((track) => (
                   <button
-                    key={role.id}
-                    className={`setup-role-card ${selectedRole === role.title ? 'setup-role-selected' : ''}`}
-                    onClick={() => setSelectedRole(role.title)}
+                    key={track.id}
+                    type="button"
+                    className={`setup-track-card ${selectedTrack === track.id ? 'setup-track-selected' : ''}`}
+                    onClick={() => setSelectedTrack(track.id)}
                   >
-                    {RoleIcon && <RoleIcon className="setup-role-icon" />}
-                    <h3 className="setup-role-title">{role.title}</h3>
-                    <p className="setup-role-desc">{role.description}</p>
+                    <div className="track-card-header">
+                      <span className="track-icon">{track.icon}</span>
+                      <span className="track-badge">{track.badge}</span>
+                    </div>
+                    <h3 className="track-label">{track.label}</h3>
+                    <p className="track-desc">{track.desc}</p>
                   </button>
-                );
-              })}
+                ))}
+              </div>
             </div>
           </div>
         )}
 
+        {/* STEP 2: DIFFICULTY & PERSONA */}
         {step === 2 && (
-          <div className="setup-section">
-            <h2 className="setup-section-heading">Choose Difficulty</h2>
-            <div className="setup-difficulty-row">
-              {DIFFICULTY_LEVELS.map((level) => (
-                <button
-                  key={level.id}
-                  className={`setup-difficulty-card ${selectedDifficulty === level.id ? 'setup-difficulty-selected' : ''}`}
-                  onClick={() => setSelectedDifficulty(level.id)}
-                >
-                  {DIFFICULTY_ICONS[level.id]}
-                  <h3 className="setup-difficulty-label">{level.label}</h3>
-                  <p className="setup-difficulty-desc">{level.description}</p>
-                </button>
-              ))}
+          <div className="setup-section-wrapper">
+            <div className="setup-section">
+              <h2 className="setup-section-heading">Choose Difficulty Level</h2>
+              <div className="setup-difficulty-row">
+                {DIFFICULTY_LEVELS.map((level) => (
+                  <button
+                    key={level.id}
+                    type="button"
+                    className={`setup-difficulty-card ${selectedDifficulty === level.id ? 'setup-difficulty-selected' : ''}`}
+                    onClick={() => setSelectedDifficulty(level.id)}
+                  >
+                    {DIFFICULTY_ICONS[level.id]}
+                    <h3 className="setup-difficulty-label">{level.label}</h3>
+                    <p className="setup-difficulty-desc">{level.description}</p>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="setup-section" style={{ marginTop: '32px' }}>
+              <div className="section-title-row">
+                <BsPersonBadgeFill className="section-title-icon" />
+                <div>
+                  <h2 className="setup-section-heading">
+                    Choose Interviewer Personality
+                  </h2>
+                  <p className="setup-section-sub">
+                    Select the demeanor of your AI interviewer.
+                  </p>
+                </div>
+              </div>
+
+              <div className="setup-personas-grid">
+                {INTERVIEWER_PERSONAS.map((persona) => (
+                  <button
+                    key={persona.id}
+                    type="button"
+                    className={`setup-persona-card ${selectedPersona === persona.id ? 'setup-persona-selected' : ''}`}
+                    onClick={() => setSelectedPersona(persona.id)}
+                  >
+                    <div className="persona-header">
+                      <div
+                        className="persona-avatar-dot"
+                        style={{ backgroundColor: persona.avatarColor }}
+                      />
+                      <span className="persona-badge">{persona.badge}</span>
+                    </div>
+                    <h3 className="persona-name">{persona.name}</h3>
+                    <span className="persona-role-title">{persona.title}</span>
+                    <p className="persona-desc">{persona.desc}</p>
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
         )}
 
+        {/* STEP 3: TARGET JOB DESCRIPTION MATCHER */}
         {step === 3 && (
           <div className="setup-section">
-            <h2 className="setup-section-heading">Upload Your Resume</h2>
+            <div className="section-title-row">
+              <BsBullseye className="section-title-icon" />
+              <div>
+                <h2 className="setup-section-heading">
+                  Target Job Description Matcher (Optional)
+                </h2>
+                <p className="setup-section-sub">
+                  Paste the job posting from LinkedIn, Indeed, or the company career page.
+                  MockInt AI will cross-reference your resume and generate questions that
+                  target the exact required technologies and gap areas.
+                </p>
+              </div>
+            </div>
+
+            <div className="setup-job-desc-box">
+              <textarea
+                className="job-desc-textarea"
+                rows={7}
+                placeholder="Paste job description text here (e.g., 'We are seeking a Senior Backend Engineer proficient in Node.js, distributed databases, Kafka, and microservice architectures...')"
+                value={jobDescription}
+                onChange={(e) => setJobDescription(e.target.value)}
+              />
+              <div className="job-desc-footer">
+                <span className="job-desc-count">
+                  {jobDescription.length} characters entered
+                </span>
+                {jobDescription.trim().length > 50 && (
+                  <span className="job-desc-active-badge">
+                    ✓ Tailoring questions to this job posting
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* STEP 4: RESUME & CONFIRMATION */}
+        {step === 4 && (
+          <div className="setup-section">
+            <div className="section-title-row">
+              <BsFileTextFill className="section-title-icon" />
+              <div>
+                <h2 className="setup-section-heading">Review & Upload Resume</h2>
+                <p className="setup-section-sub">
+                  We use your resume to ground behavioral and technical questions in your
+                  real projects and experience.
+                </p>
+              </div>
+            </div>
+
             <div className="setup-resume-area">
               {resumeText ? (
                 <div className="setup-resume-uploaded">
                   <div className="setup-resume-info">
                     <BsFileEarmarkArrowUp className="setup-resume-file-icon" />
-                    <p className="setup-resume-name">{resumeFileName}</p>
+                    <div>
+                      <p className="setup-resume-name">{resumeFileName}</p>
+                      <span className="setup-resume-ready-tag">
+                        ✓ Ready for interview personalization
+                      </span>
+                    </div>
                   </div>
                   <label className="setup-change-resume-btn">
-                    Change
+                    Change PDF
                     <input
                       type="file"
                       accept=".pdf"
@@ -283,7 +518,7 @@ const handleBack = () => {
                   <BsFileEarmarkArrowUp className="setup-upload-icon" />
                   <p className="setup-upload-text">
                     {uploadingResume
-                      ? 'Uploading...'
+                      ? 'Uploading & extracting text...'
                       : 'Click to upload PDF resume'}
                   </p>
                   <input
@@ -296,26 +531,67 @@ const handleBack = () => {
                 </label>
               )}
             </div>
+
+            {/* Loop Summary Pill Box */}
+            <div className="setup-summary-pill-box">
+              <div className="summary-pill-item">
+                <span className="summary-pill-label">Role:</span>
+                <span className="summary-pill-val">{selectedRole}</span>
+              </div>
+              <div className="summary-pill-item">
+                <span className="summary-pill-label">Track:</span>
+                <span className="summary-pill-val">{selectedTrack}</span>
+              </div>
+              <div className="summary-pill-item">
+                <span className="summary-pill-label">Difficulty:</span>
+                <span className="summary-pill-val">{selectedDifficulty.toUpperCase()}</span>
+              </div>
+              <div className="summary-pill-item">
+                <span className="summary-pill-label">Interviewer:</span>
+                <span className="summary-pill-val">{selectedPersona}</span>
+              </div>
+              {jobDescription.trim() && (
+                <div className="summary-pill-item">
+                  <span className="summary-pill-label">Target Job:</span>
+                  <span className="summary-pill-val">Custom JD Linked</span>
+                </div>
+              )}
+            </div>
           </div>
         )}
 
+        {/* Navigation Buttons */}
         <div className="setup-nav-buttons">
           {step > 1 && (
-            <button className="setup-back-btn" onClick={handleBack}>
+            <button
+              type="button"
+              className="setup-back-btn"
+              onClick={handleBack}
+            >
               Back
             </button>
           )}
-          {step < 3 ? (
-            <button className="setup-next-btn" onClick={handleNext}>
-              Next
+
+          {step < 4 ? (
+            <button
+              type="button"
+              className="setup-next-btn"
+              onClick={handleNext}
+            >
+              Next Step
             </button>
           ) : (
             <button
-              className={`setup-start-btn ${loading || !selectedRole || !resumeText ? 'setup-start-btn-disabled' : ''}`}
+              type="button"
+              className={`setup-start-btn ${
+                loading || !selectedRole || !resumeText
+                  ? 'setup-start-btn-disabled'
+                  : ''
+              }`}
               onClick={handleStartInterview}
               disabled={loading || !selectedRole || !resumeText}
             >
-              Start Interview
+              Launch Mock Interview
             </button>
           )}
         </div>

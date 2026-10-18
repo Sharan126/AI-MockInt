@@ -16,6 +16,9 @@ import {
   BsChevronDown,
   BsChevronUp,
   BsPatchCheckFill,
+  BsMicFill,
+  BsBuildingCheck,
+  BsSpeedometer2,
 } from 'react-icons/bs';
 import toast from 'react-hot-toast';
 import './index.css';
@@ -144,11 +147,45 @@ function FeedbackPage() {
     );
   }
 
-  const { feedback, role, overallScore, questions = [], messages = [] } = interview;
+  const {
+    feedback,
+    role,
+    overallScore,
+    companyTrack = 'General',
+    interviewerPersona = 'Natalie',
+    jobDescription = '',
+    speechMetrics,
+    questions = [],
+    messages = [],
+  } = interview;
+
   const { categoryScores, strengths, areasOfImprovement, finalAssessment } =
     feedback;
 
   const candidateMessages = messages.filter((m) => m.role === 'candidate');
+
+  // Compute or extract speech intelligence metrics
+  const combinedText = candidateMessages.map((m) => m.content || '').join(' ');
+  const words = combinedText.trim().split(/\s+/).filter(Boolean);
+  const totalWords = words.length;
+  const fillerRegex = /\b(um|uh|er|ah|like|you know|sort of|kind of|basically|actually|literally|i mean)\b/gi;
+  const matches = combinedText.match(fillerRegex) || [];
+  const fillerCount = matches.length;
+  const uniqueFillers = [...new Set(matches.map((m) => m.toLowerCase()))];
+  const estimatedMinutes = Math.max(1, candidateMessages.length * 0.75);
+  const calculatedWpm = Math.round(totalWords / estimatedMinutes) || 135;
+  const fluencyScore = Math.max(
+    45,
+    Math.min(98, Math.round(100 - (fillerCount / (totalWords || 1)) * 250))
+  );
+
+  const speech = speechMetrics || {
+    totalWords,
+    wpm: calculatedWpm,
+    fillerCount,
+    fillerWords: uniqueFillers,
+    fluencyScore,
+  };
 
   // Readiness badge calculation
   let readinessTier = 'Practice Recommended';
@@ -164,7 +201,7 @@ function FeedbackPage() {
   return (
     <div className="feedback-page">
       <div className="feedback-container">
-        {/* Printable Official Header (Shown during window.print) */}
+        {/* Printable Official Header */}
         <div className="print-certificate-header">
           <div className="print-logo-row">
             <span className="print-logo-title">MockInt AI</span>
@@ -173,6 +210,12 @@ function FeedbackPage() {
           <div className="print-meta-grid">
             <div>
               <strong>Target Role:</strong> {role}
+            </div>
+            <div>
+              <strong>Track Preset:</strong> {companyTrack} Track
+            </div>
+            <div>
+              <strong>Interviewer:</strong> {interviewerPersona}
             </div>
             <div>
               <strong>Assessment Date:</strong>{' '}
@@ -190,10 +233,19 @@ function FeedbackPage() {
         {/* Top Header Bar */}
         <div className="feedback-header">
           <div className="feedback-header-content">
-            <div className="feedback-role-badge">{role}</div>
+            <div className="feedback-badges-row">
+              <span className="feedback-role-badge">{role}</span>
+              <span className="feedback-track-badge">
+                <BsBuildingCheck /> {companyTrack} Track
+              </span>
+              {jobDescription && (
+                <span className="feedback-jd-badge">Target Job Linked</span>
+              )}
+            </div>
+
             <h1 className="feedback-heading">Interview Performance Report</h1>
             <p className="feedback-date-text">
-              Conducted on{' '}
+              Conducted with {interviewerPersona} on{' '}
               {new Date(interview.createdAt).toLocaleDateString('en-US', {
                 weekday: 'long',
                 month: 'long',
@@ -243,6 +295,70 @@ function FeedbackPage() {
             >
               <BsPatchCheckFill />
               <span>{readinessTier}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Real-Time Speech & Soft-Skills Intelligence Card */}
+        <div className="feedback-speech-card">
+          <div className="speech-card-header">
+            <div className="speech-title-group">
+              <BsMicFill className="speech-icon" />
+              <div>
+                <h3 className="speech-card-title">Speech & Delivery Intelligence</h3>
+                <p className="speech-card-sub">
+                  Real-time analysis of verbal fluency, speaking velocity, and filler crutches.
+                </p>
+              </div>
+            </div>
+            <div className="fluency-pill">
+              Fluency Score: <strong>{speech.fluencyScore}%</strong>
+            </div>
+          </div>
+
+          <div className="speech-metrics-grid">
+            <div className="speech-metric-box">
+              <span className="metric-box-label">Speaking Velocity</span>
+              <div className="metric-box-val-row">
+                <BsSpeedometer2 className="metric-inline-icon" />
+                <span className="metric-box-number">{speech.wpm}</span>
+                <span className="metric-box-unit">WPM</span>
+              </div>
+              <span className="metric-box-hint">
+                {speech.wpm >= 125 && speech.wpm <= 165
+                  ? '✨ Ideal FAANG Pacing (130-160 WPM)'
+                  : speech.wpm < 125
+                  ? '⚠️ Slightly hesitant / slow delivery'
+                  : '⚠️ Rushing thoughts / fast delivery'}
+              </span>
+            </div>
+
+            <div className="speech-metric-box">
+              <span className="metric-box-label">Filler Words</span>
+              <div className="metric-box-val-row">
+                <span className="metric-box-number">{speech.fillerCount}</span>
+                <span className="metric-box-unit">detected</span>
+              </div>
+              <span className="metric-box-hint">
+                {speech.fillerCount === 0
+                  ? '🏆 High verbal precision'
+                  : speech.fillerWords.length > 0
+                  ? `Used: ${speech.fillerWords.slice(0, 3).map((w) => `"${w}"`).join(', ')}`
+                  : 'Low filler frequency'}
+              </span>
+            </div>
+
+            <div className="speech-metric-box">
+              <span className="metric-box-label">Total Spoken Words</span>
+              <div className="metric-box-val-row">
+                <span className="metric-box-number">{speech.totalWords}</span>
+                <span className="metric-box-unit">words</span>
+              </div>
+              <span className="metric-box-hint">
+                {speech.totalWords > 200
+                  ? 'Detailed elaboration provided'
+                  : 'Concise structured answers'}
+              </span>
             </div>
           </div>
         </div>
