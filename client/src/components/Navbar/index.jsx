@@ -2,7 +2,7 @@ import { useContext } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext.jsx';
 import { BsCameraVideo } from 'react-icons/bs';
-import { MdDashboard, MdHistory, MdLogout } from 'react-icons/md';
+import { MdDashboard, MdHistory, MdSettings, MdLogout } from 'react-icons/md';
 import { FaUser } from 'react-icons/fa';
 import './index.css';
 
@@ -37,6 +37,13 @@ function Navbar() {
           >
             <MdHistory className="nav-link-icon" />
             History
+          </Link>
+          <Link
+            to="/settings"
+            className={`nav-link ${location.pathname === '/settings' ? 'nav-link-active' : ''}`}
+          >
+            <MdSettings className="nav-link-icon" />
+            Settings
           </Link>
         </div>
       </div>

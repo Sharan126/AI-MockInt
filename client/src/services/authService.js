@@ -26,4 +26,41 @@ const logout = async () => {
   return response.data;
 };
 
-export { register, emailLogin, getMe, logout };
+const forgotPassword = async (email) => {
+  const response = await API.post('/auth/forgot-password', { email });
+  return response.data.data;
+};
+
+const resetPassword = async (email, resetCode, newPassword) => {
+  const response = await API.post('/auth/reset-password', {
+    email,
+    resetCode,
+    newPassword,
+  });
+  return response.data.data;
+};
+
+const updateProfile = async ({ name, preferences }) => {
+  const response = await API.put('/auth/profile', { name, preferences });
+  return response.data.data;
+};
+
+const changePassword = async (currentPassword, newPassword) => {
+  const response = await API.put('/auth/change-password', {
+    currentPassword,
+    newPassword,
+  });
+  return response.data.data;
+};
+
+export {
+  register,
+  emailLogin,
+  getMe,
+  logout,
+  forgotPassword,
+  resetPassword,
+  updateProfile,
+  changePassword,
+};
+

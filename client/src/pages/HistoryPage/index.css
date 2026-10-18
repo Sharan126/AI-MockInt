@@ -67,6 +67,252 @@
   font-size: 20px;
 }
 
+/* ==============================
+   Continuous Performance Tracker
+   ============================== */
+.performance-comparison-panel {
+  background: linear-gradient(135deg, #ffffff 0%, #f0f7ff 100%);
+  border: 1px solid #bfdbfe;
+  border-radius: 16px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.05);
+}
+
+.comparison-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.comparison-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.comparison-icon {
+  font-size: 32px;
+  color: #2563eb;
+  flex-shrink: 0;
+}
+
+.comparison-title {
+  font-family: "Bree Serif", serif;
+  font-size: 22px;
+  color: #0f172a;
+  margin: 0 0 2px 0;
+}
+
+.comparison-subtitle {
+  font-family: "Roboto", sans-serif;
+  font-size: 14px;
+  color: #64748b;
+  margin: 0;
+}
+
+.level-badge-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background-color: #2563eb;
+  color: #ffffff;
+  padding: 8px 16px;
+  border-radius: 100px;
+  font-family: "Roboto", sans-serif;
+  font-size: 14px;
+}
+
+.level-icon {
+  font-size: 18px;
+  color: #fde047;
+}
+
+.comparison-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 14px;
+}
+
+.metric-box {
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.metric-label {
+  font-family: "Roboto", sans-serif;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.metric-val {
+  font-family: "Bree Serif", serif;
+  font-size: 26px;
+  color: #0f172a;
+}
+
+.best-score {
+  color: #16a34a;
+}
+
+.ready-val {
+  color: #2563eb;
+  font-size: 20px;
+}
+
+.metric-hint {
+  font-family: "Roboto", sans-serif;
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+.momentum-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.progression-pos {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: #16a34a;
+  font-weight: 700;
+  font-size: 18px;
+  font-family: "Roboto", sans-serif;
+}
+
+.progression-neg {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: #dc2626;
+  font-weight: 700;
+  font-size: 18px;
+  font-family: "Roboto", sans-serif;
+}
+
+/* Progression Timeline Chart */
+.score-trend-timeline {
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 16px 20px;
+}
+
+.trend-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: "Bree Serif", serif;
+  font-size: 16px;
+  color: #0f172a;
+  margin: 0 0 16px 0;
+}
+
+.trend-icon {
+  color: #eab308;
+  font-size: 16px;
+}
+
+.trend-bars-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 16px;
+  height: 120px;
+  padding: 10px 0;
+  overflow-x: auto;
+}
+
+.trend-bar-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  height: 100%;
+  cursor: pointer;
+  min-width: 44px;
+}
+
+.trend-bar-score {
+  font-family: "Roboto", sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  color: #2563eb;
+}
+
+.trend-bar-track {
+  flex: 1;
+  width: 14px;
+  background-color: #e2e8f0;
+  border-radius: 8px;
+  display: flex;
+  align-items: flex-end;
+  overflow: hidden;
+}
+
+.trend-bar-fill {
+  width: 100%;
+  background-color: #3b82f6;
+  border-radius: 8px;
+  transition: height 0.3s ease;
+}
+
+.trend-bar-best {
+  background-color: #10b981;
+}
+
+.trend-bar-label {
+  font-family: "Roboto", sans-serif;
+  font-size: 11px;
+  color: #94a3b8;
+}
+
+/* History Filter Row */
+.history-filter-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 4px;
+}
+
+.history-filters {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.filter-btn {
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-family: "Roboto", sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: #64748b;
+  background-color: #ffffff;
+  border: 1px solid #cbd5e1;
+  cursor: pointer;
+}
+
+.filter-active {
+  background-color: #2563eb;
+  color: #ffffff;
+  border-color: #2563eb;
+}
+
 /* Loading State */
 .history-loading-state {
   display: flex;

@@ -53,8 +53,18 @@
   color: #64748b;
 }
 
-.interview-card-score {
+.interview-card-score-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
   margin-bottom: 12px;
+}
+
+.interview-card-score {
+  display: flex;
+  align-items: baseline;
 }
 
 .score-value {
@@ -70,11 +80,59 @@
   margin-left: 2px;
 }
 
+.card-mini-scores {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.mini-score-chip {
+  font-family: 'Roboto', sans-serif;
+  font-size: 11px;
+  background-color: #f1f5f9;
+  color: #475569;
+  padding: 3px 8px;
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+}
+
+.mini-score-chip strong {
+  color: #0f172a;
+}
+
+.card-brief-assessment {
+  font-family: 'Roboto', sans-serif;
+  font-size: 13px;
+  color: #64748b;
+  line-height: 1.45;
+  margin: 0 0 14px 0;
+  padding: 8px 12px;
+  background-color: #f8fafc;
+  border-left: 3px solid #3b82f6;
+  border-radius: 0 6px 6px 0;
+}
+
 .interview-card-footer {
   display: flex;
-  justify-content: flex-end;
+  align-items: center;
+  justify-content: space-between;
   padding-top: 12px;
   border-top: 1px solid #e2e8f0;
+}
+
+.card-view-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: 'Roboto', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: #2563eb;
+}
+
+.view-btn-icon {
+  font-size: 15px;
 }
 
 .interview-card-delete {

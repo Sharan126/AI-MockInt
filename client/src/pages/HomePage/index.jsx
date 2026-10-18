@@ -56,9 +56,14 @@ function HomePage() {
   };
 
   const completedCount = allInterviews.filter((i) => i.status === 'completed').length;
-  const scored = allInterviews.filter((i) => typeof i.score === 'number');
+  const scored = allInterviews.filter(
+    (i) => typeof i.overallScore === 'number' || typeof i.score === 'number'
+  );
   const avgScore = scored.length
-    ? Math.round(scored.reduce((acc, i) => acc + i.score, 0) / scored.length)
+    ? Math.round(
+        scored.reduce((acc, i) => acc + (i.overallScore ?? i.score), 0) /
+          scored.length
+      )
     : 0;
 
   return (

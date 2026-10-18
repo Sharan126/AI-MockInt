@@ -1,0 +1,379 @@
+/* ==============================
+   SettingsPage Styles
+   ============================== */
+
+.settings-page {
+  min-height: 100vh;
+  background-color: #f8fafc;
+  padding: 40px 24px;
+}
+
+.settings-container {
+  max-width: 1000px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.settings-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  gap: 12px;
+  font-family: "Roboto", sans-serif;
+  color: #64748b;
+}
+
+/* Header */
+.settings-header {
+  border-bottom: 1px solid #e2e8f0;
+  padding-bottom: 16px;
+}
+
+.settings-title {
+  font-family: "Bree Serif", serif;
+  font-size: 32px;
+  color: #0f172a;
+  margin: 0 0 6px 0;
+}
+
+.settings-subtitle {
+  font-family: "Roboto", sans-serif;
+  font-size: 15px;
+  color: #64748b;
+  margin: 0;
+}
+
+/* Layout */
+.settings-layout {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+/* Sidebar Navigation */
+.settings-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 12px;
+}
+
+.settings-nav-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 8px;
+  border: none;
+  background: none;
+  font-family: "Roboto", sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: #475569;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s ease;
+}
+
+.settings-nav-btn:hover {
+  background-color: #f1f5f9;
+  color: #0f172a;
+}
+
+.settings-nav-active {
+  background-color: #dbeafe !important;
+  color: #1d4ed8 !important;
+}
+
+.nav-icon {
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+/* Content Card */
+.settings-content-card {
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 32px;
+}
+
+.settings-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.section-title {
+  font-family: "Bree Serif", serif;
+  font-size: 22px;
+  color: #0f172a;
+  margin: 0 0 4px 0;
+}
+
+.section-desc {
+  font-family: "Roboto", sans-serif;
+  font-size: 14px;
+  color: #64748b;
+  margin: 0 0 16px 0;
+}
+
+/* Fields */
+.settings-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.field-label {
+  font-family: "Roboto", sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: #334155;
+}
+
+.field-input,
+.field-select {
+  font-family: "Roboto", sans-serif;
+  font-size: 15px;
+  padding: 11px 14px;
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+  background-color: #ffffff;
+  color: #0f172a;
+  outline: none;
+}
+
+.field-input:focus,
+.field-select:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.field-input-readonly {
+  background-color: #f1f5f9;
+  color: #64748b;
+  cursor: not-allowed;
+}
+
+.field-hint {
+  font-family: "Roboto", sans-serif;
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+.auth-provider-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-family: "Roboto", sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: #334155;
+  width: fit-content;
+}
+
+.chip-icon {
+  font-size: 16px;
+}
+
+.google-color {
+  color: #ea4335;
+}
+
+.local-color {
+  color: #2563eb;
+}
+
+/* Save Button */
+.settings-save-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background-color: #2563eb;
+  color: #ffffff;
+  padding: 12px 24px;
+  border-radius: 8px;
+  border: none;
+  font-family: "Roboto", sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  width: fit-content;
+  margin-top: 8px;
+}
+
+.settings-save-btn:hover {
+  background-color: #1d4ed8;
+}
+
+.settings-btn-disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* OAuth Security Notice */
+.oauth-security-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  background-color: #eff6ff;
+  border: 1px solid #bfdbfe;
+  padding: 16px 20px;
+  border-radius: 10px;
+}
+
+.note-icon {
+  font-size: 24px;
+  color: #2563eb;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.oauth-security-note h4 {
+  font-family: "Bree Serif", serif;
+  font-size: 17px;
+  color: #1e3a8a;
+  margin: 0 0 4px 0;
+}
+
+.oauth-security-note p {
+  font-family: "Roboto", sans-serif;
+  font-size: 14px;
+  color: #3b82f6;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Data Actions */
+.data-action-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 20px;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  background-color: #f8fafc;
+  flex-wrap: wrap;
+}
+
+.danger-card {
+  border-color: #fecaca;
+  background-color: #fef2f2;
+}
+
+.data-card-title {
+  font-family: "Bree Serif", serif;
+  font-size: 18px;
+  color: #0f172a;
+  margin: 0 0 4px 0;
+}
+
+.text-danger {
+  color: #dc2626;
+}
+
+.data-card-desc {
+  font-family: "Roboto", sans-serif;
+  font-size: 13px;
+  color: #64748b;
+  margin: 0;
+  max-width: 520px;
+  line-height: 1.45;
+}
+
+.data-export-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background-color: #ffffff;
+  color: #2563eb;
+  border: 1px solid #2563eb;
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-family: "Roboto", sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.data-export-btn:hover {
+  background-color: #eff6ff;
+}
+
+.data-clear-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background-color: #dc2626;
+  color: #ffffff;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-family: "Roboto", sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.data-clear-btn:hover {
+  background-color: #b91c1c;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .settings-page {
+    padding: 24px 16px;
+  }
+
+  .settings-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .settings-sidebar {
+    flex-direction: row;
+    overflow-x: auto;
+    padding: 8px;
+  }
+
+  .settings-nav-btn {
+    white-space: nowrap;
+    padding: 10px 14px;
+  }
+
+  .settings-content-card {
+    padding: 20px 16px;
+  }
+
+  .settings-save-btn {
+    width: 100%;
+  }
+
+  .data-action-card {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .data-export-btn,
+  .data-clear-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}

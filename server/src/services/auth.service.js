@@ -86,9 +86,160 @@ export const getUserProfile = async (userId) => {
     email: user.email,
     name: user.name,
     picture: user.picture,
+    authProvider: user.authProvider || 'local',
+    preferences: user.preferences || {
+      preferredRole: 'Full Stack Developer',
+      difficulty: 'medium',
+      codeLanguage: 'javascript',
+      voiceSpeed: 'normal',
+    },
     createdAt: user.createdAt,
     lastLogin: user.lastLogin,
   };
+};
+
+/**
+ * Generate password reset code for a user
+ */
+export const requestPasswordReset = async (email) => {
+  const normalizedEmail = email.toLowerCase().trim();
+  const user = await User.findOne({ email: normalizedEmail });
+
+  if (!user) {
+    const error = new Error('No account found with this email address.');
+    error.statusCode = 404;
+    throw error;
+  }
+
+  if (user.authProvider !== 'local' && !user.password) {
+    const error = new Error(
+      `This account was created via ${user.authProvider}. Please log in using ${user.authProvider}.`
+    );
+    error.statusCode = 400;
+    throw error;
+  }
+
+  // Generate 6-digit verification code
+  const resetCode = Math.floor(100000 + Math.random() * 900000).toString();
+  user.resetPasswordToken = resetCode;
+  user.resetPasswordExpires = new Date(Date.now() + 15 * 60 * 1000); // 15 mins
+  await user.save();
+
+  return {
+    message: 'Password reset code generated. Use this code to reset your password.',
+    resetCode,
+  };
+};
+
+/**
+ * Reset password using verification code
+ */
+export const resetPasswordWithCode = async (email, resetCode, newPassword) => {
+  const normalizedEmail = email.toLowerCase().trim();
+  const user = await User.findOne({
+    email: normalizedEmail,
+    resetPasswordToken: resetCode.trim(),
+    resetPasswordExpires: { $gt: new Date() },
+  });
+
+  if (!user) {
+    const error = new Error('Invalid or expired reset code. Please request a new code.');
+    error.statusCode = 400;
+    throw error;
+  }
+
+  if (!newPassword || newPassword.length < 6) {
+    const error = new Error('New password must be at least 6 characters long.');
+    error.statusCode = 400;
+    throw error;
+  }
+
+  // Hash new password
+  user.password = await bcrypt.hash(newPassword, 10);
+  user.resetPasswordToken = null;
+  user.resetPasswordExpires = null;
+  user.authProvider = 'local';
+  await user.save();
+
+  // Generate token so user can sign in immediately
+  const token = generateToken(user);
+
+  return {
+    token,
+    user: { id: user._id, email: user.email, name: user.name },
+  };
+};
+
+/**
+ * Update user profile and preferences
+ */
+export const updateUserProfile = async (userId, { name, preferences }) => {
+  const user = await User.findById(userId);
+  if (!user) {
+    const error = new Error('User not found');
+    error.statusCode = 404;
+    throw error;
+  }
+
+  if (name && name.trim()) {
+    user.name = name.trim();
+  }
+
+  if (preferences) {
+    user.preferences = {
+      ...user.preferences,
+      ...preferences,
+    };
+  }
+
+  await user.save();
+
+  return {
+    id: user._id,
+    email: user.email,
+    name: user.name,
+    picture: user.picture,
+    authProvider: user.authProvider,
+    preferences: user.preferences,
+  };
+};
+
+/**
+ * Change password for logged in user
+ */
+export const changeUserPassword = async (userId, currentPassword, newPassword) => {
+  const user = await User.findById(userId);
+  if (!user) {
+    const error = new Error('User not found');
+    error.statusCode = 404;
+    throw error;
+  }
+
+  if (!user.password) {
+    const error = new Error(
+      `This account uses ${user.authProvider} login and does not have a local password.`
+    );
+    error.statusCode = 400;
+    throw error;
+  }
+
+  const isMatch = await bcrypt.compare(currentPassword, user.password);
+  if (!isMatch) {
+    const error = new Error('Current password is incorrect.');
+    error.statusCode = 400;
+    throw error;
+  }
+
+  if (!newPassword || newPassword.length < 6) {
+    const error = new Error('New password must be at least 6 characters long.');
+    error.statusCode = 400;
+    throw error;
+  }
+
+  user.password = await bcrypt.hash(newPassword, 10);
+  await user.save();
+
+  return { message: 'Password updated successfully' };
 };
 
 /**

@@ -72,6 +72,94 @@ export const logout = (req, res) => {
   return res.json({ success: true, data: { message: 'Logged out successfully' } });
 };
 
+/**
+ * POST /api/auth/forgot-password
+ * Request 6-digit password reset code
+ */
+export const forgotPassword = async (req, res, next) => {
+  try {
+    const { email } = req.body;
+    if (!email) {
+      return res.status(400).json({ success: false, message: 'Email is required.' });
+    }
+
+    const result = await authService.requestPasswordReset(email);
+    return res.json({ success: true, data: result });
+  } catch (error) {
+    if (error.statusCode) {
+      return res.status(error.statusCode).json({ success: false, message: error.message });
+    }
+    next(error);
+  }
+};
+
+/**
+ * POST /api/auth/reset-password
+ * Reset password using the 6-digit code
+ */
+export const resetPassword = async (req, res, next) => {
+  try {
+    const { email, resetCode, newPassword } = req.body;
+    if (!email || !resetCode || !newPassword) {
+      return res
+        .status(400)
+        .json({ success: false, message: 'Email, reset code, and new password are required.' });
+    }
+
+    const result = await authService.resetPasswordWithCode(email, resetCode, newPassword);
+    return res.json({ success: true, data: result });
+  } catch (error) {
+    if (error.statusCode) {
+      return res.status(error.statusCode).json({ success: false, message: error.message });
+    }
+    next(error);
+  }
+};
+
+/**
+ * PUT /api/auth/profile
+ * Update user profile & interview preferences
+ */
+export const updateProfile = async (req, res, next) => {
+  try {
+    const { name, preferences } = req.body;
+    const result = await authService.updateUserProfile(req.user._id, { name, preferences });
+    return res.json({ success: true, data: result });
+  } catch (error) {
+    if (error.statusCode) {
+      return res.status(error.statusCode).json({ success: false, message: error.message });
+    }
+    next(error);
+  }
+};
+
+/**
+ * PUT /api/auth/change-password
+ * Change password for authenticated user
+ */
+export const changePassword = async (req, res, next) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    if (!currentPassword || !newPassword) {
+      return res
+        .status(400)
+        .json({ success: false, message: 'Current password and new password are required.' });
+    }
+
+    const result = await authService.changeUserPassword(
+      req.user._id,
+      currentPassword,
+      newPassword
+    );
+    return res.json({ success: true, data: result });
+  } catch (error) {
+    if (error.statusCode) {
+      return res.status(error.statusCode).json({ success: false, message: error.message });
+    }
+    next(error);
+  }
+};
+
 const getClientUrl = (req) => {
   if (process.env.CLIENT_URL) {
     return process.env.CLIENT_URL.split(',')[0].trim().replace(/\/$/, '');

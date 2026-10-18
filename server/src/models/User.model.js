@@ -58,6 +58,24 @@ const userSchema = new mongoose.Schema(
       type: Date,
       default: Date.now,
     },
+
+    // User preferences (for settings)
+    preferences: {
+      preferredRole: { type: String, default: 'Full Stack Developer' },
+      difficulty: { type: String, default: 'medium' },
+      codeLanguage: { type: String, default: 'javascript' },
+      voiceSpeed: { type: String, default: 'normal' },
+    },
+
+    // Password reset fields
+    resetPasswordToken: {
+      type: String,
+      default: null,
+    },
+    resetPasswordExpires: {
+      type: Date,
+      default: null,
+    },
   },
   {
     timestamps: true, // Adds createdAt and updatedAt automatically

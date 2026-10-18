@@ -11,6 +11,7 @@ import InterviewSetupPage from './pages/InterviewSetupPage';
 import InterviewPage from './pages/InterviewPage';
 import FeedbackPage from './pages/FeedbackPage';
 import HistoryPage from './pages/HistoryPage';
+import SettingsPage from './pages/SettingsPage';
 
 function App() {
   return (
@@ -65,6 +66,16 @@ function App() {
             <ProtectedRoute>
               <Navbar />
               <HistoryPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/settings"
+          element={
+            <ProtectedRoute>
+              <Navbar />
+              <SettingsPage />
             </ProtectedRoute>
           }
         />
