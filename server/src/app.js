@@ -64,12 +64,21 @@ app.get('/', (req, res) => {
   });
 });
 
+// Safeguard against duplicate /api prefix (e.g. /api/api/auth)
+app.use((req, res, next) => {
+  if (req.url.startsWith('/api/api/')) {
+    req.url = req.url.replace('/api/api/', '/api/');
+  }
+  next();
+});
+
 // Mount all API routes under /api
 // /api/auth      → authentication routes
 // /api/interview → interview routes (start, answer, feedback)
 // /api/resume    → resume upload and parsing routes
 // /api/history   → interview history routes
 app.use('/api', routes);
+app.use('/api/api', routes);
 
 // ============================================
 // ERROR HANDLING (must be AFTER routes)

@@ -57,8 +57,14 @@ function LoginPage() {
   }, [searchParams, login, navigate]);
 
   const handleSocialLogin = (provider) => {
-    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-    const baseUrl = apiUrl.replace(/\/api$/, '');
+    const rawApiUrl = (import.meta.env.VITE_API_URL || 'http://localhost:5000/api').trim();
+    let baseUrl;
+    try {
+      const parsed = new URL(rawApiUrl);
+      baseUrl = parsed.origin;
+    } catch {
+      baseUrl = rawApiUrl.replace(/\/api\/?$/, '');
+    }
     window.location.href = `${baseUrl}/api/auth/${provider}`;
   };
 
