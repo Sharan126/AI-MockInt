@@ -61,7 +61,40 @@
 .navbar-right {
   display: flex;
   align-items: center;
+  gap: 12px;
 }
+
+.theme-toggle-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  cursor: pointer;
+  color: #e2e8f0;
+  transition: all 0.2s ease;
+}
+
+.theme-toggle-btn:hover {
+  background-color: rgba(255, 255, 255, 0.18);
+  transform: scale(1.05);
+}
+
+.sun-icon {
+  color: #facc15;
+  font-size: 18px;
+  filter: drop-shadow(0 0 6px rgba(250, 204, 21, 0.5));
+}
+
+.moon-icon {
+  color: #93c5fd;
+  font-size: 16px;
+  filter: drop-shadow(0 0 4px rgba(147, 197, 253, 0.5));
+}
+
 
 .navbar-user-section {
   display: flex;

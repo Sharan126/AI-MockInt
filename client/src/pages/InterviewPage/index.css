@@ -113,29 +113,18 @@
 /* Avatar Block */
 .interviewer-avatar-block {
   display: flex;
-  align-items: center;
-  gap: 14px;
-}
-
-.interviewer-avatar-circle {
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  background-color: #2563eb;
-  display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
-}
-
-.interviewer-avatar-icon {
-  font-size: 32px;
-  color: #ffffff;
+  text-align: center;
+  gap: 8px;
+  padding: 10px 0;
 }
 
 .interviewer-avatar-info {
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 2px;
 }
 
@@ -146,10 +135,19 @@
   color: #0f172a;
 }
 
+[data-theme='dark'] .interviewer-avatar-name {
+  color: #f8fafc;
+}
+
 .interviewer-avatar-role {
   font-family: "Roboto", sans-serif;
-  font-size: 14px;
+  font-size: 13px;
+  font-weight: 500;
   color: #64748b;
+}
+
+[data-theme='dark'] .interviewer-avatar-role {
+  color: #94a3b8;
 }
 
 /* Status Block */

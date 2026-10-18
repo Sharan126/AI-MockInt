@@ -1,13 +1,15 @@
 import { useContext } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext.jsx';
-import { BsCameraVideo } from 'react-icons/bs';
+import { ThemeContext } from '../../context/ThemeContext.jsx';
+import { BsCameraVideo, BsSunFill, BsMoonStarsFill } from 'react-icons/bs';
 import { MdDashboard, MdHistory, MdSettings, MdLogout } from 'react-icons/md';
 import { FaUser } from 'react-icons/fa';
 import './index.css';
 
 function Navbar() {
   const { user, logout } = useContext(AuthContext);
+  const { theme, toggleTheme } = useContext(ThemeContext);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -48,11 +50,26 @@ function Navbar() {
         </div>
       </div>
       <div className="navbar-right">
+        {/* Theme Toggle Button */}
+        <button
+          type="button"
+          className="theme-toggle-btn"
+          onClick={toggleTheme}
+          title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+          aria-label="Toggle theme"
+        >
+          {theme === 'dark' ? (
+            <BsSunFill className="theme-toggle-icon sun-icon" />
+          ) : (
+            <BsMoonStarsFill className="theme-toggle-icon moon-icon" />
+          )}
+        </button>
+
         {user && (
           <div className="navbar-user-section">
             <FaUser className="user-icon" />
             <span className="user-name">{user.name}</span>
-            <button className="logout-btn" onClick={handleLogout}>
+            <button className="logout-btn" onClick={handleLogout} title="Logout">
               <MdLogout className="logout-icon" />
               Logout
             </button>

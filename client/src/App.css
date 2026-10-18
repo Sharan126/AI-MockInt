@@ -289,3 +289,206 @@ select {
   min-height: 100vh;
   background-color: #f8fafc;
 }
+
+/* ============================================
+   Dark Mode Theme Overrides ([data-theme="dark"])
+   ============================================ */
+[data-theme="dark"] body {
+  background-color: #090d16;
+  color: #f1f5f9;
+}
+
+[data-theme="dark"] .app-shell,
+[data-theme="dark"] .protected-shell,
+[data-theme="dark"] .home-page,
+[data-theme="dark"] .setup-page,
+[data-theme="dark"] .history-page,
+[data-theme="dark"] .settings-page,
+[data-theme="dark"] .feedback-page {
+  background-color: #090d16;
+  color: #f1f5f9;
+}
+
+[data-theme="dark"] .home-welcome-heading,
+[data-theme="dark"] .home-section-heading,
+[data-theme="dark"] .setup-section-heading,
+[data-theme="dark"] .history-heading,
+[data-theme="dark"] .settings-title,
+[data-theme="dark"] .feedback-heading,
+[data-theme="dark"] .comparison-title,
+[data-theme="dark"] .section-title,
+[data-theme="dark"] .interview-card-role,
+[data-theme="dark"] .score-card-value,
+[data-theme="dark"] .data-card-title,
+[data-theme="dark"] .interviewer-name,
+[data-theme="dark"] .code-block-title {
+  color: #f8fafc;
+}
+
+[data-theme="dark"] .home-welcome-subtitle,
+[data-theme="dark"] .history-empty-desc,
+[data-theme="dark"] .comparison-subtitle,
+[data-theme="dark"] .section-desc,
+[data-theme="dark"] .settings-subtitle,
+[data-theme="dark"] .data-card-desc,
+[data-theme="dark"] .feedback-date-text,
+[data-theme="dark"] .card-brief-assessment,
+[data-theme="dark"] .metric-label,
+[data-theme="dark"] .interviewer-role,
+[data-theme="dark"] .interviewer-question-text {
+  color: #94a3b8;
+}
+
+[data-theme="dark"] .home-stat-card,
+[data-theme="dark"] .setup-role-card,
+[data-theme="dark"] .setup-difficulty-card,
+[data-theme="dark"] .interview-card,
+[data-theme="dark"] .settings-sidebar,
+[data-theme="dark"] .settings-content-card,
+[data-theme="dark"] .metric-box,
+[data-theme="dark"] .score-trend-timeline,
+[data-theme="dark"] .feedback-overall-section,
+[data-theme="dark"] .feedback-card,
+[data-theme="dark"] .feedback-score-circle,
+[data-theme="dark"] .interviewer-panel,
+[data-theme="dark"] .answer-panel,
+[data-theme="dark"] .interview-topbar,
+[data-theme="dark"] .interview-timeline,
+[data-theme="dark"] .score-card {
+  background-color: #111827;
+  border-color: #1e293b;
+  color: #f1f5f9;
+}
+
+[data-theme="dark"] .performance-comparison-panel {
+  background: linear-gradient(135deg, #111827 0%, #0f172a 100%);
+  border-color: #1e3a8a;
+}
+
+[data-theme="dark"] .metric-val {
+  color: #f8fafc;
+}
+
+[data-theme="dark"] .field-input,
+[data-theme="dark"] .field-select,
+[data-theme="dark"] .filter-btn,
+[data-theme="dark"] .history-page-btn,
+[data-theme="dark"] .code-language-select,
+[data-theme="dark"] .text-answer-textarea {
+  background-color: #1e293b;
+  border-color: #334155;
+  color: #f1f5f9;
+}
+
+[data-theme="dark"] .field-input-readonly {
+  background-color: #0f172a;
+  color: #64748b;
+}
+
+[data-theme="dark"] .card-brief-assessment {
+  background-color: #1e293b;
+  border-left-color: #3b82f6;
+  color: #cbd5e1;
+}
+
+[data-theme="dark"] .interviewer-question-box {
+  background-color: #1e293b;
+  border-color: #334155;
+  color: #f8fafc;
+}
+
+[data-theme="dark"] .interviewer-question-text {
+  color: #f1f5f9;
+}
+
+[data-theme="dark"] .topbar-question-label {
+  color: #f8fafc;
+}
+
+[data-theme="dark"] .topbar-progress-track,
+[data-theme="dark"] .score-bar-track {
+  background-color: #334155;
+}
+
+[data-theme="dark"] .interviewer-avatar-circle {
+  border-color: #3b82f6;
+  background-color: #1e293b;
+}
+
+[data-theme="dark"] .feedback-callout-blue {
+  background-color: #1e293b;
+  border-left-color: #3b82f6;
+}
+
+[data-theme="dark"] .feedback-callout-heading {
+  color: #f8fafc;
+}
+
+[data-theme="dark"] .feedback-callout-list-item {
+  color: #cbd5e1;
+}
+
+[data-theme="dark"] .settings-nav-btn {
+  color: #94a3b8;
+}
+
+[data-theme="dark"] .settings-nav-btn:hover {
+  background-color: #1e293b;
+  color: #f8fafc;
+}
+
+[data-theme="dark"] .settings-nav-active {
+  background-color: #1e3a8a !important;
+  color: #93c5fd !important;
+}
+
+[data-theme="dark"] .data-action-card {
+  background-color: #1e293b;
+  border-color: #334155;
+}
+
+[data-theme="dark"] .danger-card {
+  background-color: rgba(220, 38, 38, 0.1);
+  border-color: rgba(220, 38, 38, 0.3);
+}
+
+[data-theme="dark"] .auth-provider-chip {
+  background-color: #1e293b;
+  border-color: #334155;
+  color: #f1f5f9;
+}
+
+[data-theme="dark"] .setup-role-card {
+  color: #f1f5f9;
+}
+
+[data-theme="dark"] .setup-role-title,
+[data-theme="dark"] .setup-difficulty-label {
+  color: #f8fafc;
+}
+
+[data-theme="dark"] .setup-role-selected,
+[data-theme="dark"] .setup-difficulty-selected {
+  background-color: #1e3a8a !important;
+  border-color: #3b82f6 !important;
+}
+
+[data-theme="dark"] .setup-step-badge {
+  background-color: #1e293b;
+  border-color: #334155;
+  color: #94a3b8;
+}
+
+[data-theme="dark"] .setup-step-active {
+  background-color: #2563eb;
+  border-color: #2563eb;
+  color: #ffffff;
+}
+
+[data-theme="dark"] .setup-back-btn,
+[data-theme="dark"] .feedback-btn-outline {
+  background-color: #1e293b;
+  border-color: #334155;
+  color: #f1f5f9;
+}
+

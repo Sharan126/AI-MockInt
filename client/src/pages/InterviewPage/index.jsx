@@ -10,6 +10,9 @@ import {
 import VoiceRecorder from '../../components/VoiceRecorder';
 import AudioPlayer from '../../components/AudioPlayer';
 import CodeEditor from '../../components/CodeEditor';
+import AiOrb from '../../components/AiOrb';
+import WebcamMirror from '../../components/WebcamMirror';
+import LiveTimer from '../../components/LiveTimer';
 import { FaUserTie } from 'react-icons/fa';
 import {
   BsRecordCircleFill,
@@ -227,6 +230,7 @@ function InterviewPage() {
               style={{ width: `${progressPercent}%` }}
             />
           </div>
+          <LiveTimer questionNum={currentQuestionNum} isListening={isListening} />
         </div>
         <div className="topbar-right">
           {currentQuestionNum >= totalQuestions && isListening && (
@@ -243,14 +247,14 @@ function InterviewPage() {
 
       <div className="interviewer-panel">
         <div className="interviewer-avatar-block">
-          <div className="interviewer-avatar-circle">
-            <FaUserTie className="interviewer-avatar-icon" />
-          </div>
+          <AiOrb state={interviewerState} isAudioPlaying={isSpeaking} />
           <div className="interviewer-avatar-info">
             <span className="interviewer-avatar-name">Natalie</span>
-            <span className="interviewer-avatar-role">AI Interviewer</span>
+            <span className="interviewer-avatar-role">Senior AI Interviewer</span>
           </div>
         </div>
+
+        <WebcamMirror />
 
         <div className="interviewer-status-block">
           {isSpeaking && (

@@ -78,11 +78,94 @@ function HomePage() {
         </p>
       </div>
 
+      {/* Executive Interview Readiness Gauge */}
+      <div className="home-readiness-card shadow-sm">
+        <div className="readiness-gauge-col">
+          <svg className="readiness-gauge-svg" viewBox="0 0 100 100">
+            <circle className="gauge-bg-circle" cx="50" cy="50" r="40" />
+            <circle
+              className="gauge-fill-circle"
+              cx="50"
+              cy="50"
+              r="40"
+              strokeDasharray={251.3}
+              strokeDashoffset={
+                251.3 - (251.3 * (completedCount ? avgScore : 0)) / 100
+              }
+              style={{
+                stroke:
+                  avgScore >= 85
+                    ? '#10b981'
+                    : avgScore >= 70
+                    ? '#2563eb'
+                    : avgScore > 0
+                    ? '#f59e0b'
+                    : '#94a3b8',
+              }}
+            />
+            <text x="50" y="47" className="gauge-score-text" textAnchor="middle">
+              {completedCount ? `${avgScore}%` : '—'}
+            </text>
+            <text x="50" y="62" className="gauge-sub-text" textAnchor="middle">
+              READINESS
+            </text>
+          </svg>
+        </div>
+
+        <div className="readiness-details-col">
+          <div
+            className="readiness-tier-badge"
+            style={{
+              color:
+                avgScore >= 85
+                  ? '#10b981'
+                  : avgScore >= 70
+                  ? '#2563eb'
+                  : avgScore > 0
+                  ? '#f59e0b'
+                  : '#64748b',
+              borderColor:
+                avgScore >= 85
+                  ? '#10b981'
+                  : avgScore >= 70
+                  ? '#2563eb'
+                  : avgScore > 0
+                  ? '#f59e0b'
+                  : '#cbd5e1',
+            }}
+          >
+            {completedCount === 0
+              ? 'New Candidate'
+              : avgScore >= 85
+              ? 'FAANG / Tier-1 Ready 🚀'
+              : avgScore >= 70
+              ? 'Strong Candidate ✨'
+              : 'Skill Building Phase 📚'}
+          </div>
+          <h2 className="readiness-title">Interview Readiness Index</h2>
+          <p className="readiness-desc">
+            {completedCount > 0
+              ? `Derived from your last ${completedCount} completed session${completedCount > 1 ? 's' : ''}. Practice structured STAR responses and code problem-solving to level up.`
+              : 'Complete your first mock interview to unlock your personalized AI competency evaluation and FAANG readiness gauge.'}
+          </p>
+        </div>
+
+        <div className="readiness-action-col">
+          <button
+            className="home-start-btn"
+            onClick={() => navigate('/setup')}
+          >
+            <BsPlayCircleFill className="home-start-icon" />
+            Start Mock Interview
+          </button>
+        </div>
+      </div>
+
       <div className="home-stats-row">
         <div className="home-stat-card shadow-sm">
           <BsChatSquareTextFill className="home-stat-icon" />
           <span className="home-stat-number">{allInterviews.length}</span>
-          <span className="home-stat-label">Interviews</span>
+          <span className="home-stat-label">Total Sessions</span>
         </div>
         <div className="home-stat-card shadow-sm">
           <BsCheckCircleFill className="home-stat-icon" />
@@ -92,18 +175,8 @@ function HomePage() {
         <div className="home-stat-card shadow-sm">
           <BsTrophyFill className="home-stat-icon" />
           <span className="home-stat-number">{avgScore}</span>
-          <span className="home-stat-label">Avg Score</span>
+          <span className="home-stat-label">Average Score</span>
         </div>
-      </div>
-
-      <div className="home-cta-container">
-        <button
-          className="home-start-btn"
-          onClick={() => navigate('/setup')}
-        >
-          <BsPlayCircleFill className="home-start-icon" />
-          Start New Interview
-        </button>
       </div>
 
       <div className="home-recent-section">

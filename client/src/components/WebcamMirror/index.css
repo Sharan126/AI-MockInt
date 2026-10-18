@@ -1,0 +1,218 @@
+/* WebcamMirror PIP Widget Styles */
+.webcam-pip-widget {
+  position: relative;
+  background: var(--color-surface, #ffffff);
+  border: 1px solid var(--color-border, #e2e8f0);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  width: 100%;
+  max-width: 240px;
+  margin: 0.75rem auto 0 auto;
+}
+
+[data-theme='dark'] .webcam-pip-widget {
+  background: #1e293b;
+  border-color: #334155;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+}
+
+.webcam-pip-widget.is-minimized {
+  max-width: 200px;
+}
+
+.webcam-pip-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 10px;
+  background: rgba(15, 23, 42, 0.04);
+  border-bottom: 1px solid var(--color-border, #e2e8f0);
+}
+
+[data-theme='dark'] .webcam-pip-header {
+  background: rgba(15, 23, 42, 0.6);
+  border-color: #334155;
+}
+
+.pip-status-tag {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.pip-live-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #ef4444;
+  box-shadow: 0 0 6px #ef4444;
+  animation: pipBlink 1.2s infinite;
+}
+
+.pip-live-text {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: #ef4444;
+}
+
+.pip-off-text {
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: var(--color-text-muted, #94a3b8);
+  letter-spacing: 0.03em;
+}
+
+.pip-controls {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.pip-icon-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--color-text-muted, #64748b);
+  padding: 4px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  transition: all 0.2s ease;
+}
+
+.pip-icon-btn:hover {
+  background: rgba(0, 0, 0, 0.06);
+  color: var(--color-text, #0f172a);
+}
+
+[data-theme='dark'] .pip-icon-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #f8fafc;
+}
+
+.pip-icon-btn.active,
+.pip-icon-btn.btn-active-cam {
+  color: #2563eb;
+}
+
+[data-theme='dark'] .pip-icon-btn.active,
+[data-theme='dark'] .pip-icon-btn.btn-active-cam {
+  color: #60a5fa;
+}
+
+/* Viewport */
+.webcam-viewport {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  background: #0f172a;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.webcam-video-element {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scaleX(-1); /* Mirror effect */
+}
+
+/* Fallback view when camera is off */
+.webcam-fallback-view {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem 0.5rem;
+  text-align: center;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at center, #1e293b 0%, #0f172a 100%);
+}
+
+.fallback-avatar-circle {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 6px;
+}
+
+.fallback-avatar-icon {
+  font-size: 1.4rem;
+  color: #94a3b8;
+}
+
+.fallback-message {
+  font-size: 0.72rem;
+  color: #94a3b8;
+  margin: 0 0 8px 0;
+}
+
+.webcam-enable-btn {
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 6px;
+  background: #2563eb;
+  color: #ffffff;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.webcam-enable-btn:hover {
+  background: #1d4ed8;
+}
+
+/* Eye-level framing guide */
+.webcam-eye-guide {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.guide-oval {
+  width: 65%;
+  height: 75%;
+  border: 1.5px dashed rgba(255, 255, 255, 0.45);
+  border-radius: 50%;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+}
+
+.guide-label {
+  position: absolute;
+  bottom: 8px;
+  font-size: 0.65rem;
+  color: rgba(255, 255, 255, 0.8);
+  background: rgba(0, 0, 0, 0.5);
+  padding: 2px 6px;
+  border-radius: 4px;
+  letter-spacing: 0.02em;
+}
+
+@keyframes pipBlink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+@media (max-width: 768px) {
+  .webcam-pip-widget {
+    max-width: 180px;
+  }
+}
