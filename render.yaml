@@ -27,7 +27,8 @@ services:
         sync: false
 
   # Frontend Static Site
-  - type: static
+  - type: web
+    runtime: static
     name: ai-mockint-frontend
     rootDir: client
     buildCommand: npm install && npm run build
