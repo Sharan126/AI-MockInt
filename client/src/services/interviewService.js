@@ -21,7 +21,8 @@ const startInterview = async (
   totalQuestions = 5,
   companyTrack = 'General',
   interviewerPersona = 'Natalie',
-  jobDescription = ''
+  jobDescription = '',
+  pressureMode = false
 ) => {
   const response = await API.post('/interview/start', {
     role,
@@ -30,6 +31,7 @@ const startInterview = async (
     companyTrack,
     interviewerPersona,
     jobDescription,
+    pressureMode,
   });
   return response.data.data;
 };
@@ -39,8 +41,11 @@ const getInterview = async (id) => {
   return response.data.data;
 };
 
-const submitTextAnswer = async (interviewId, answer) => {
-  const response = await API.post(`/interview/${interviewId}/answer`, { answer });
+const submitTextAnswer = async (interviewId, answer, candidateAudio = null) => {
+  const response = await API.post(`/interview/${interviewId}/answer`, {
+    answer,
+    candidateAudio,
+  });
   return response.data.data;
 };
 
@@ -63,6 +68,31 @@ const endInterview = async (interviewId) => {
   return response.data.data;
 };
 
+const auditWhiteboard = async (interviewId, whiteboardData) => {
+  const response = await API.post(`/interview/${interviewId}/audit-whiteboard`, whiteboardData);
+  return response.data.data;
+};
+
+const optimizeResume = async (resumeText, targetRole) => {
+  const response = await API.post('/interview/optimize-resume', { resumeText, targetRole });
+  return response.data.data;
+};
+
+const shareInterview = async (interviewId) => {
+  const response = await API.post(`/interview/${interviewId}/share`);
+  return response.data.data;
+};
+
+const getSharedInterview = async (token) => {
+  const response = await API.get(`/interview/shared/${token}`);
+  return response.data.data;
+};
+
+const updateGoal = async (goalData) => {
+  const response = await API.post('/interview/goal', goalData);
+  return response.data.data;
+};
+
 export {
   uploadResume,
   getResume,
@@ -72,4 +102,9 @@ export {
   transcribeAudio,
   submitCode,
   endInterview,
-};
+  auditWhiteboard,
+  optimizeResume,
+  shareInterview,
+  getSharedInterview,
+  updateGoal,
+};

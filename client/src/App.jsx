@@ -12,13 +12,24 @@ import InterviewPage from './pages/InterviewPage';
 import FeedbackPage from './pages/FeedbackPage';
 import HistoryPage from './pages/HistoryPage';
 import SettingsPage from './pages/SettingsPage';
+import ResumeOptimizerPage from './pages/ResumeOptimizerPage/index.jsx';
+import SharedReviewPage from './pages/SharedReviewPage/index.jsx';
 
 function App() {
   return (
     <div className="app-shell">
       <Routes>
-        {/* Public route */}
+        {/* Public routes */}
         <Route path="/login" element={<LoginPage />} />
+        <Route
+          path="/feedback/share/:token"
+          element={
+            <>
+              <Navbar />
+              <SharedReviewPage />
+            </>
+          }
+        />
 
         {/* Protected routes */}
         <Route
@@ -37,6 +48,26 @@ function App() {
             <ProtectedRoute>
               <Navbar />
               <InterviewSetupPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/interview/setup"
+          element={
+            <ProtectedRoute>
+              <Navbar />
+              <InterviewSetupPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/resume-optimizer"
+          element={
+            <ProtectedRoute>
+              <Navbar />
+              <ResumeOptimizerPage />
             </ProtectedRoute>
           }
         />

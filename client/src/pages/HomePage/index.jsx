@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext.jsx';
 import { getHistory, deleteHistoryItem } from '../../services/historyService.js';
 import InterviewCard from '../../components/InterviewCard';
+import RoadmapCard from '../../components/RoadmapCard/index.jsx';
 import {
   BsChatSquareTextFill,
   BsCheckCircleFill,
@@ -160,6 +161,8 @@ function HomePage() {
           </button>
         </div>
       </div>
+
+      <RoadmapCard user={user} />
 
       <div className="home-stats-row">
         <div className="home-stat-card shadow-sm">

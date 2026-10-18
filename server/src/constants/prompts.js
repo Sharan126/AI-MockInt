@@ -233,3 +233,94 @@ export const buildConversationHistory = (messages) => {
     )
     .join('\n\n');
 };
+
+export const PRESSURE_PROBE_PROMPT = (
+  role,
+  questionText,
+  candidateAnswer,
+  persona = 'Natalie',
+  companyTrack = 'General'
+) => `
+You are ${persona}, an executive bar raiser conducting a high-stakes ${companyTrack} ${role} interview in Bar Raiser Pressure Mode.
+
+ORIGINAL QUESTION:
+${questionText}
+
+CANDIDATE'S ANSWER:
+${candidateAnswer}
+
+GOAL:
+Challenge the candidate with exactly ONE incisive follow-up pushback question (1-2 sentences maximum).
+- Do NOT accept the answer passively.
+- Probe an unaddressed edge case, failure mode, 100x traffic surge, memory bottleneck, or architectural trade-off.
+- Example: "That works for the happy path, but what if your primary database replica crashes mid-transaction?" or "How would you implement this with O(1) space instead of allocating extra memory?"
+- Tone: ${
+  persona === 'Marcus'
+    ? 'Direct, sharp, and uncompromising'
+    : persona === 'Elena'
+    ? 'Strategic, focused on system trade-offs and blast radius'
+    : 'Challenging but encouraging'
+}
+
+Return ONLY the probing question text. No JSON, no markdown.
+`;
+
+export const RESUME_OPTIMIZER_PROMPT = (resumeText, targetRole = 'Software Engineer') => `
+You are an expert FAANG hiring director and ATS (Applicant Tracking System) optimizer reviewing a resume for a ${targetRole} role.
+
+CANDIDATE RESUME:
+${resumeText}
+
+Analyze the resume thoroughly and return ONLY a valid JSON object (no markdown, no code blocks):
+{
+  "atsScore": 84,
+  "summary": "2-sentence overall evaluation of resume competitiveness.",
+  "actionVerbsScore": 80,
+  "quantifiableMetricsScore": 70,
+  "bulletImprovements": [
+    {
+      "original": "Weak bullet line found in resume or general line",
+      "improved": "Action verb + concrete metric + business impact version",
+      "reason": "Why this revision passes ATS filters and impresses senior hiring managers."
+    },
+    {
+      "original": "Second line needing quantification",
+      "improved": "Quantified STAR revision with tools and metrics",
+      "reason": "Clear explanation of improvement."
+    }
+  ],
+  "matchedKeywords": [
+    "Identified in resume: e.g. Node.js", "Docker", "RESTful APIs"
+  ],
+  "missingKeywords": [
+    "Recommended additions for ${targetRole}: e.g. Distributed Caching", "CI/CD Pipelines", "System Observability"
+  ]
+}
+`;
+
+export const SYSTEM_DESIGN_AUDIT_PROMPT = (role, nodes = [], connections = []) => `
+You are a Principal Distributed Systems Architect auditing a candidate's system design topology for a ${role} interview.
+
+CANVAS TOPOLOGY NODES:
+${JSON.stringify(nodes, null, 2)}
+
+CONNECTIONS / DATA FLOW:
+${JSON.stringify(connections, null, 2)}
+
+Audit this architecture for production readiness and return ONLY a valid JSON object:
+{
+  "scalabilityScore": 85,
+  "spofRisks": [
+    "Specific Single Point of Failure (e.g., single Load Balancer without DNS failover)"
+  ],
+  "cachingEvaluation": "Analysis of caching layers (Redis/CDN) and cache invalidation risk.",
+  "databaseStrategy": "Evaluation of read/write splitting, replication, or partitioning.",
+  "strengths": [
+    "Clear separation of concerns", "Good decoupled message queue usage"
+  ],
+  "recommendations": [
+    "Concrete architectural improvement 1",
+    "Concrete architectural improvement 2"
+  ]
+}
+`;

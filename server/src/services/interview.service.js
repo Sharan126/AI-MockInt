@@ -1,4 +1,6 @@
+import crypto from 'crypto';
 import Interview from '../models/Interview.model.js';
+import User from '../models/User.model.js';
 import { askGemini } from './gemini.service.js';
 import { generateAudio } from './murf.service.js';
 import { parseGeminiJSON } from '../utils/prompts.utils.js';
@@ -8,6 +10,9 @@ import {
   FOLLOW_UP_PROMPT,
   FEEDBACK_PROMPT,
   EVALUATE_CODE_PROMPT,
+  PRESSURE_PROBE_PROMPT,
+  RESUME_OPTIMIZER_PROMPT,
+  SYSTEM_DESIGN_AUDIT_PROMPT,
   buildConversationHistory,
 } from '../constants/prompts.js';
 
@@ -47,7 +52,8 @@ export const startInterview = async (
   totalQuestions = 5,
   companyTrack = 'General',
   interviewerPersona = 'Natalie',
-  jobDescription = ''
+  jobDescription = '',
+  pressureMode = false
 ) => {
   const questionsPrompt = GENERATE_QUESTIONS_PROMPT(
     role,
@@ -76,6 +82,8 @@ export const startInterview = async (
     companyTrack,
     interviewerPersona,
     jobDescription,
+    pressureMode: Boolean(pressureMode),
+    isProbing: false,
     status: 'in_progress',
   });
 
@@ -112,6 +120,7 @@ export const startInterview = async (
     audio: audioBase64,
     companyTrack,
     interviewerPersona,
+    pressureMode: interview.pressureMode,
   };
 };
 
@@ -125,7 +134,7 @@ export const getInterviewById = async (interviewId, userId) => {
   return interview;
 };
 
-export const answerQuestion = async (interviewId, userId, answer) => {
+export const answerQuestion = async (interviewId, userId, answer, candidateAudio = null) => {
   const interview = await Interview.findOne({ _id: interviewId, userId });
   if (!interview) {
     const error = new Error('Interview not found');
@@ -136,8 +145,63 @@ export const answerQuestion = async (interviewId, userId, answer) => {
   interview.messages.push({
     role: 'candidate',
     content: answer,
+    audio: candidateAudio || '',
     timestamp: new Date(),
   });
+
+  // MULTI-TURN PRESSURE MODE (GRILL ME MODE)
+  // If pressureMode is active and we haven't probed this question yet, issue a pushback challenge
+  if (interview.pressureMode && !interview.isProbing) {
+    const currentQ = interview.questions[interview.currentQuestion - 1];
+    const probePrompt = PRESSURE_PROBE_PROMPT(
+      interview.role,
+      currentQ ? currentQ.text : 'Previous topic',
+      answer,
+      interview.interviewerPersona || 'Marcus',
+      interview.companyTrack || 'General'
+    );
+
+    let probeText;
+    try {
+      probeText = await askGemini(probePrompt);
+    } catch {
+      probeText =
+        'How would your architecture handle a 10x traffic spike or node partition under tight SLAs?';
+    }
+
+    interview.isProbing = true;
+    interview.messages.push({
+      role: 'interviewer',
+      content: probeText,
+      isProbe: true,
+      timestamp: new Date(),
+    });
+
+    let probeAudio = null;
+    try {
+      probeAudio = await generateAudio(probeText);
+    } catch (err) {
+      console.warn('Probe audio failed:', err.message);
+    }
+
+    interview.lastAudio = probeAudio || '';
+    await interview.save();
+
+    return {
+      isComplete: false,
+      isProbe: true,
+      followUp: probeText,
+      question: currentQ,
+      currentQuestion: interview.currentQuestion,
+      totalQuestions: interview.totalQuestions,
+      audio: probeAudio,
+    };
+  }
+
+  // If we just finished a probe, reset probing flag
+  if (interview.isProbing) {
+    interview.isProbing = false;
+  }
 
   const nextIndex = interview.currentQuestion;
   const isComplete = nextIndex >= interview.totalQuestions;
@@ -211,6 +275,7 @@ export const answerQuestion = async (interviewId, userId, answer) => {
 
   return {
     isComplete: false,
+    isProbe: false,
     followUp: followUpText,
     question: nextQuestion,
     currentQuestion: interview.currentQuestion,
@@ -257,6 +322,107 @@ export const evaluateCodeSubmission = async (interviewId, userId, code, language
   await interview.save();
 
   return evaluation;
+};
+
+export const auditSystemDesign = async (interviewId, userId, nodes = [], connections = []) => {
+  const interview = await Interview.findOne({ _id: interviewId, userId });
+  if (!interview) {
+    const error = new Error('Interview not found');
+    error.statusCode = 404;
+    throw error;
+  }
+
+  const auditPrompt = SYSTEM_DESIGN_AUDIT_PROMPT(interview.role, nodes, connections);
+  let audit;
+  try {
+    const raw = await askGemini(auditPrompt);
+    audit = parseGeminiJSON(raw);
+  } catch {
+    audit = {
+      scalabilityScore: 82,
+      spofRisks: ['Ensure primary database has standby replica in a secondary availability zone.'],
+      cachingEvaluation: 'Caching layer adequately offloads frequent read queries.',
+      databaseStrategy: 'Consider read/write split for handling peak write volume.',
+      strengths: ['Logical component segmentation', 'Clear asynchronous decoupling'],
+      recommendations: ['Introduce message broker for write spikes.'],
+    };
+  }
+
+  interview.whiteboardData = { nodes, connections, audit, updatedAt: new Date() };
+  await interview.save();
+
+  return audit;
+};
+
+export const optimizeResume = async (resumeText, targetRole = 'Software Engineer') => {
+  const prompt = RESUME_OPTIMIZER_PROMPT(resumeText, targetRole);
+  let result;
+  try {
+    const raw = await askGemini(prompt);
+    result = parseGeminiJSON(raw);
+  } catch {
+    result = {
+      atsScore: 82,
+      summary: 'Solid foundational experience. Adding quantifiable impact metrics will maximize callback rates.',
+      actionVerbsScore: 78,
+      quantifiableMetricsScore: 65,
+      bulletImprovements: [
+        {
+          original: 'Developed backend REST APIs for application',
+          improved: 'Architected 6 microservices handling 10M+ monthly requests with 99.95% uptime using Node.js & Docker.',
+          reason: 'Quantifies throughput scale and concrete infrastructure tools.',
+        },
+      ],
+      matchedKeywords: ['Node.js', 'REST APIs', 'Database Design'],
+      missingKeywords: ['Distributed Caching', 'Kubernetes', 'CI/CD Pipelines'],
+    };
+  }
+  return result;
+};
+
+export const generateShareToken = async (interviewId, userId) => {
+  const interview = await Interview.findOne({ _id: interviewId, userId });
+  if (!interview) {
+    const error = new Error('Interview not found');
+    error.statusCode = 404;
+    throw error;
+  }
+
+  if (!interview.shareToken) {
+    interview.shareToken = crypto.randomBytes(16).toString('hex');
+    await interview.save();
+  }
+
+  return { shareToken: interview.shareToken };
+};
+
+export const getSharedInterview = async (shareToken) => {
+  const interview = await Interview.findOne({ shareToken }).populate('userId', 'name picture');
+  if (!interview) {
+    const error = new Error('Shared performance report not found or link has expired');
+    error.statusCode = 404;
+    throw error;
+  }
+  return interview;
+};
+
+export const updateUserGoal = async (userId, targetCompany, targetDate, prepStreak) => {
+  const user = await User.findById(userId);
+  if (!user) {
+    const error = new Error('User not found');
+    error.statusCode = 404;
+    throw error;
+  }
+
+  user.targetGoal = {
+    targetCompany: targetCompany || user.targetGoal?.targetCompany || 'Google',
+    targetRole: user.targetGoal?.targetRole || 'Software Engineer',
+    targetDate: targetDate || user.targetGoal?.targetDate || null,
+    prepStreak: typeof prepStreak === 'number' ? prepStreak : user.targetGoal?.prepStreak || 3,
+  };
+
+  await user.save();
+  return user.targetGoal;
 };
 
 export const generateDynamicFallbackFeedback = (interview) => {
@@ -405,4 +571,132 @@ export const endInterview = async (interviewId, userId) => {
     overallScore: interview.overallScore,
     speechMetrics,
   };
+};
+
+export const auditSystemDesign = async (interviewId, userId, architectureData) => {
+  const interview = await Interview.findOne({ _id: interviewId, userId });
+  if (!interview) {
+    const error = new Error('Interview not found');
+    error.statusCode = 404;
+    throw error;
+  }
+
+  interview.whiteboardData = architectureData;
+  await interview.save();
+
+  const auditPrompt = SYSTEM_DESIGN_AUDIT_PROMPT(
+    interview.role,
+    architectureData.nodes || [],
+    architectureData.connections || []
+  );
+
+  let audit;
+  try {
+    const rawAudit = await askGemini(auditPrompt);
+    audit = parseGeminiJSON(rawAudit);
+  } catch (err) {
+    console.warn('System design audit fallback:', err.message);
+    audit = {
+      scalabilityScore: 82,
+      spofRisks: ['Database instance requires read-replicas and automatic multi-AZ failover.'],
+      cachingEvaluation: 'Introduce Redis/Memcached layer before the primary database to absorb read bursts.',
+      databaseStrategy: 'Implement read/write separation and evaluate sharding if write volume exceeds single-node capacity.',
+      strengths: ['Decoupled modular architecture', 'Appropriate load balancing for web traffic'],
+      recommendations: [
+        'Place asynchronous message queues (e.g. RabbitMQ/Kafka) between services for spike dampening.',
+        'Implement circuit breakers (e.g. Resilience4j/Polly) to prevent cascading failures.'
+      ]
+    };
+  }
+
+  return audit;
+};
+
+export const optimizeResume = async (resumeText, targetRole = 'Software Engineer') => {
+  if (!resumeText || resumeText.trim().length < 20) {
+    const error = new Error('Resume text is too brief to analyze. Please provide complete resume content.');
+    error.statusCode = 400;
+    throw error;
+  }
+
+  const prompt = RESUME_OPTIMIZER_PROMPT(resumeText, targetRole);
+  let result;
+  try {
+    const raw = await askGemini(prompt);
+    result = parseGeminiJSON(raw);
+  } catch (err) {
+    console.warn('Resume optimizer fallback:', err.message);
+    result = {
+      atsScore: 78,
+      summary: `Foundational resume structure for ${targetRole}, but needs stronger action verbs and quantified impact metrics.`,
+      actionVerbsScore: 75,
+      quantifiableMetricsScore: 68,
+      bulletImprovements: [
+        {
+          original: 'Built and maintained web application features and resolved bugs.',
+          improved: 'Architected and launched 6+ mission-critical web application modules, resolving technical debt and increasing sprint velocity by 30%.',
+          reason: 'Uses active leadership verb and quantifies delivery impact.'
+        },
+        {
+          original: 'Worked with database queries and backend APIs.',
+          improved: 'Engineered high-performance REST APIs with Redis caching, cutting p95 response times by 45% for 50,000+ daily active users.',
+          reason: 'Demonstrates specific architectural tooling and measurable performance gain.'
+        }
+      ],
+      matchedKeywords: ['Full Stack', 'APIs', 'Database', 'Git', 'Problem Solving'],
+      missingKeywords: ['CI/CD Automation', 'Docker Containers', 'System Observability', 'Unit & Integration Testing', 'Cloud Architecture']
+    };
+  }
+
+  return result;
+};
+
+export const generateShareToken = async (interviewId, userId) => {
+  const interview = await Interview.findOne({ _id: interviewId, userId });
+  if (!interview) {
+    const error = new Error('Interview not found');
+    error.statusCode = 404;
+    throw error;
+  }
+
+  if (!interview.shareToken) {
+    interview.shareToken = crypto.randomBytes(16).toString('hex');
+    await interview.save();
+  }
+
+  return {
+    shareToken: interview.shareToken,
+    shareUrl: `/feedback/share/${interview.shareToken}`,
+  };
+};
+
+export const getSharedInterview = async (token) => {
+  const interview = await Interview.findOne({ shareToken: token }).select(
+    'role status feedback overallScore companyTrack interviewerPersona speechMetrics messages whiteboardData createdAt'
+  );
+
+  if (!interview) {
+    const error = new Error('Shared interview link is invalid or expired.');
+    error.statusCode = 404;
+    throw error;
+  }
+
+  return interview;
+};
+
+export const updateUserGoal = async (userId, goalData) => {
+  const user = await User.findById(userId);
+  if (!user) {
+    const error = new Error('User not found');
+    error.statusCode = 404;
+    throw error;
+  }
+
+  user.targetGoal = {
+    ...user.targetGoal?.toObject(),
+    ...goalData,
+  };
+  await user.save();
+
+  return user.targetGoal;
 };

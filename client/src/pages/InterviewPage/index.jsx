@@ -13,6 +13,7 @@ import CodeEditor from '../../components/CodeEditor';
 import AiOrb from '../../components/AiOrb';
 import WebcamMirror from '../../components/WebcamMirror';
 import LiveTimer from '../../components/LiveTimer';
+import Whiteboard from '../../components/Whiteboard/index.jsx';
 import { FaUserTie } from 'react-icons/fa';
 import {
   BsRecordCircleFill,
@@ -21,6 +22,8 @@ import {
   BsCheck,
   BsCheckCircleFill,
   BsXCircleFill,
+  BsDiagram3,
+  BsFire,
 } from 'react-icons/bs';
 import toast from 'react-hot-toast';
 import './index.css';
@@ -58,6 +61,8 @@ function InterviewPage() {
   const [currentQuestion, setCurrentQuestion] = useState(null);
   const [interviewerText, setInterviewerText] = useState('');
   const [farewellMessage, setFarewellMessage] = useState('');
+  const [isProbing, setIsProbing] = useState(false);
+  const [showWhiteboard, setShowWhiteboard] = useState(false);
 
   useEffect(() => {
     const loadInterview = async () => {
@@ -68,6 +73,7 @@ function InterviewPage() {
           setTotalQuestions(data.totalQuestions || 5);
           setCompanyTrack(data.companyTrack || 'General');
           setInterviewerPersona(data.interviewerPersona || 'Natalie');
+          setIsProbing(Boolean(data.isProbing));
           const q =
             (data.questions && data.questions[data.currentQuestion - 1]) ||
             data.questions?.[0] ||
@@ -107,6 +113,7 @@ function InterviewPage() {
   };
 
   const processAnswerResult = (result) => {
+    setIsProbing(Boolean(result.isProbing));
     if (result.isComplete) {
       setInterviewerState(STATE_FAREWELL);
       setFarewellMessage(
@@ -130,11 +137,11 @@ function InterviewPage() {
     }
   };
 
-  const submitAndProcess = async (text) => {
+  const submitAndProcess = async (text, candidateAudio = null) => {
     setSubmitting(true);
     setInterviewerState(STATE_THINKING);
     try {
-      const result = await submitTextAnswer(id, text);
+      const result = await submitTextAnswer(id, text, candidateAudio);
       processAnswerResult(result);
     } catch (err) {
       toast.error('Failed to submit answer');
@@ -148,6 +155,20 @@ function InterviewPage() {
     setSubmitting(true);
     setInterviewerState(STATE_THINKING);
     try {
+      let candidateAudioBase64 = null;
+      if (audioBlob) {
+        try {
+          candidateAudioBase64 = await new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onloadend = () => resolve(reader.result);
+            reader.onerror = () => resolve(null);
+            reader.readAsDataURL(audioBlob);
+          });
+        } catch {
+          candidateAudioBase64 = null;
+        }
+      }
+
       let transcribedText = '';
       try {
         const res = await transcribeAudio(audioBlob);
@@ -155,7 +176,10 @@ function InterviewPage() {
       } catch {
         transcribedText = 'Audio response provided by candidate.';
       }
-      await submitAndProcess(transcribedText || 'Audio response provided by candidate.');
+      await submitAndProcess(
+        transcribedText || 'Audio response provided by candidate.',
+        candidateAudioBase64
+      );
     } catch (err) {
       toast.error('Audio processing failed');
       setInterviewerState(STATE_LISTENING);
@@ -240,6 +264,13 @@ function InterviewPage() {
           <LiveTimer questionNum={currentQuestionNum} isListening={isListening} />
         </div>
         <div className="topbar-right">
+          <button
+            className="topbar-whiteboard-btn"
+            onClick={() => setShowWhiteboard(true)}
+            title="Open Interactive System Design Whiteboard"
+          >
+            <BsDiagram3 /> Architecture Canvas
+          </button>
           {currentQuestionNum >= totalQuestions && isListening && (
             <button
               className={`topbar-end-btn ${ending ? 'topbar-end-btn-disabled' : ''}`}
@@ -327,6 +358,16 @@ function InterviewPage() {
                 Hear Again
               </button>
             )}
+          </div>
+        )}
+
+        {!isFarewell && isProbing && !isThinking && (
+          <div className="interview-probe-banner">
+            <BsFire className="probe-flame-icon" />
+            <div>
+              <strong>🔥 Bar Raiser Pushback Probe</strong>
+              <p>Your interviewer is drilling into edge cases and trade-offs before moving forward.</p>
+            </div>
           </div>
         )}
 
@@ -661,6 +702,13 @@ function InterviewPage() {
           })}
         </div>
       </div>
+
+      {showWhiteboard && (
+        <Whiteboard
+          interviewId={id}
+          onClose={() => setShowWhiteboard(false)}
+        />
+      )}
     </div>
   );
 }

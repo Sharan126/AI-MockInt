@@ -2,7 +2,7 @@ import { useContext } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext.jsx';
 import { ThemeContext } from '../../context/ThemeContext.jsx';
-import { BsCameraVideo, BsSunFill, BsMoonStarsFill } from 'react-icons/bs';
+import { BsCameraVideo, BsSunFill, BsMoonStarsFill, BsFileEarmarkCheck } from 'react-icons/bs';
 import { MdDashboard, MdHistory, MdSettings, MdLogout } from 'react-icons/md';
 import { FaUser } from 'react-icons/fa';
 import './index.css';
@@ -32,6 +32,13 @@ function Navbar() {
           >
             <MdDashboard className="nav-link-icon" />
             Dashboard
+          </Link>
+          <Link
+            to="/resume-optimizer"
+            className={`nav-link ${location.pathname === '/resume-optimizer' ? 'nav-link-active' : ''}`}
+          >
+            <BsFileEarmarkCheck className="nav-link-icon" />
+            ATS Studio
           </Link>
           <Link
             to="/history"

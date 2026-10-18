@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getInterview } from '../../services/interviewService.js';
+import { getInterview, shareInterview } from '../../services/interviewService.js';
 import ScoreCard from '../../components/ScoreCard';
 import RadarChart from '../../components/RadarChart';
+import GameFilmPlayer from '../../components/GameFilmPlayer/index.jsx';
 import getScoreColor from '../../constants/scoreColors.js';
 import {
   BsCheckCircleFill,
@@ -19,7 +20,9 @@ import {
   BsMicFill,
   BsBuildingCheck,
   BsSpeedometer2,
+  BsDiagram3,
 } from 'react-icons/bs';
+import { FiShare2, FiFileText, FiArrowRight, FiCheck } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import './index.css';
 
@@ -89,6 +92,7 @@ function FeedbackPage() {
   const [interview, setInterview] = useState(null);
   const [loading, setLoading] = useState(true);
   const [expandedQuestion, setExpandedQuestion] = useState(0);
+  const [sharing, setSharing] = useState(false);
 
   useEffect(() => {
     const fetchInterview = async () => {
@@ -106,6 +110,20 @@ function FeedbackPage() {
 
   const handlePrint = () => {
     window.print();
+  };
+
+  const handleShare = async () => {
+    setSharing(true);
+    try {
+      const res = await shareInterview(id);
+      const fullUrl = `${window.location.origin}${res.shareUrl}`;
+      await navigator.clipboard.writeText(fullUrl);
+      toast.success('Shareable review link copied to clipboard!');
+    } catch (err) {
+      toast.error('Failed to generate share link');
+    } finally {
+      setSharing(false);
+    }
   };
 
   if (loading) {
@@ -258,6 +276,16 @@ function FeedbackPage() {
           <div className="feedback-header-actions">
             <button
               type="button"
+              className="feedback-btn-share"
+              onClick={handleShare}
+              title="Share report with mentor or peer"
+              disabled={sharing}
+            >
+              <FiShare2 className="pdf-icon" />
+              <span>{sharing ? 'Generating Link...' : 'Share Review Link'}</span>
+            </button>
+            <button
+              type="button"
               className="feedback-btn-pdf"
               onClick={handlePrint}
               title="Print or Save as PDF"
@@ -298,6 +326,14 @@ function FeedbackPage() {
             </div>
           </div>
         </div>
+
+        {/* Audio Game Film Session Replay */}
+        {messages && messages.length > 0 && (
+          <GameFilmPlayer
+            messages={messages}
+            interviewerPersona={interviewerPersona}
+          />
+        )}
 
         {/* Real-Time Speech & Soft-Skills Intelligence Card */}
         <div className="feedback-speech-card">
@@ -551,6 +587,53 @@ function FeedbackPage() {
             </div>
           </div>
         )}
+
+        {/* System Design Whiteboard Topology Snapshot */}
+        {interview.whiteboardData && interview.whiteboardData.nodes && interview.whiteboardData.nodes.length > 0 && (
+          <div className="feedback-whiteboard-summary">
+            <div className="fws-header">
+              <BsDiagram3 className="fws-icon" />
+              <div>
+                <h3 className="fws-title">System Architecture Topology Audited</h3>
+                <p className="fws-sub">
+                  Candidate designed a distributed topology with {interview.whiteboardData.nodes.length} components and {interview.whiteboardData.connections?.length || 0} data flows.
+                </p>
+              </div>
+            </div>
+            <div className="fws-nodes-row">
+              {interview.whiteboardData.nodes.map((node, i) => (
+                <span
+                  key={i}
+                  className="fws-node-pill"
+                  style={{ borderLeftColor: node.color }}
+                >
+                  <span className="node-type">{node.type}:</span> {node.label}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* ATS Studio Profile Grounding Callout */}
+        <div
+          className="feedback-ats-grounding-card"
+          onClick={() => navigate('/resume-optimizer')}
+        >
+          <div className="ats-ground-left">
+            <div className="ats-ground-badge">
+              <FiFileText className="ats-ground-icon" />
+            </div>
+            <div>
+              <h4 className="ats-ground-title">Benchmark & Polish Profile in ATS Optimizer Studio</h4>
+              <p className="ats-ground-sub">
+                Correlate your interview delivery against ATS keyword filters and get quantified STAR bullet points.
+              </p>
+            </div>
+          </div>
+          <button className="btn-ats-ground">
+            Open ATS Studio <FiArrowRight />
+          </button>
+        </div>
 
         {/* Footer Actions */}
         <div className="feedback-actions-row">

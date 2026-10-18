@@ -825,3 +825,68 @@
     font-size: 15px;
   }
 }
+
+/* Whiteboard Topbar Button */
+.topbar-whiteboard-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(99, 102, 241, 0.12);
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  color: #6366f1;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+[data-theme='dark'] .topbar-whiteboard-btn {
+  background: rgba(99, 102, 241, 0.2);
+  color: #a5b4fc;
+}
+
+.topbar-whiteboard-btn:hover {
+  background: #6366f1;
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+/* Probing Banner */
+.interview-probe-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(245, 158, 11, 0.1);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  border-radius: 10px;
+  padding: 10px 14px;
+  margin-bottom: 12px;
+  animation: pulse-border 2s infinite ease-in-out;
+}
+
+@keyframes pulse-border {
+  0% { border-color: rgba(245, 158, 11, 0.35); }
+  50% { border-color: rgba(245, 158, 11, 0.8); }
+  100% { border-color: rgba(245, 158, 11, 0.35); }
+}
+
+.probe-flame-icon {
+  font-size: 1.4rem;
+  color: #f59e0b;
+  flex-shrink: 0;
+}
+
+.interview-probe-banner strong {
+  display: block;
+  font-size: 0.85rem;
+  color: #f59e0b;
+}
+
+.interview-probe-banner p {
+  margin: 2px 0 0 0;
+  font-size: 0.775rem;
+  color: var(--color-text-muted, #64748b);
+}
+

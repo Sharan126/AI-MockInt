@@ -76,6 +76,14 @@ const userSchema = new mongoose.Schema(
       type: Date,
       default: null,
     },
+
+    // Candidate target interview goal & sprint roadmap
+    targetGoal: {
+      targetCompany: { type: String, default: 'Google' },
+      targetRole: { type: String, default: 'Software Engineer' },
+      targetDate: { type: Date, default: null },
+      prepStreak: { type: Number, default: 3 },
+    },
   },
   {
     timestamps: true, // Adds createdAt and updatedAt automatically

@@ -69,6 +69,23 @@ const interviewSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.Mixed,
       default: null,
     },
+    pressureMode: {
+      type: Boolean,
+      default: false,
+    },
+    isProbing: {
+      type: Boolean,
+      default: false,
+    },
+    shareToken: {
+      type: String,
+      default: null,
+      index: true,
+    },
+    whiteboardData: {
+      type: mongoose.Schema.Types.Mixed,
+      default: null,
+    },
   },
   {
     timestamps: true,

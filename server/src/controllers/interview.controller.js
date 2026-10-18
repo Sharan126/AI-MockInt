@@ -9,6 +9,7 @@ export const startInterview = async (req, res, next) => {
       companyTrack,
       interviewerPersona,
       jobDescription,
+      pressureMode,
     } = req.body;
 
     if (!role) {
@@ -30,7 +31,8 @@ export const startInterview = async (req, res, next) => {
       totalQuestions || 5,
       companyTrack || 'General',
       interviewerPersona || 'Natalie',
-      jobDescription || ''
+      jobDescription || '',
+      Boolean(pressureMode)
     );
 
     return res.status(201).json({ success: true, data: result });
@@ -50,11 +52,12 @@ export const getInterview = async (req, res, next) => {
 
 export const submitAnswer = async (req, res, next) => {
   try {
-    const { answer } = req.body;
+    const { answer, candidateAudio } = req.body;
     const result = await interviewService.answerQuestion(
       req.params.id,
       req.user._id,
-      answer || ''
+      answer || '',
+      candidateAudio || null
     );
     return res.json({ success: true, data: result });
   } catch (error) {
@@ -99,6 +102,56 @@ export const transcribeAudio = async (req, res, next) => {
     );
     const text = await transcribeAudioBuffer(req.file.buffer);
     return res.json({ success: true, data: { text } });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const auditWhiteboard = async (req, res, next) => {
+  try {
+    const result = await interviewService.auditSystemDesign(
+      req.params.id,
+      req.user._id,
+      req.body
+    );
+    return res.json({ success: true, data: result });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const optimizeResume = async (req, res, next) => {
+  try {
+    const { resumeText, targetRole } = req.body;
+    const result = await interviewService.optimizeResume(resumeText, targetRole);
+    return res.json({ success: true, data: result });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const shareInterview = async (req, res, next) => {
+  try {
+    const result = await interviewService.generateShareToken(req.params.id, req.user._id);
+    return res.json({ success: true, data: result });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getSharedInterview = async (req, res, next) => {
+  try {
+    const result = await interviewService.getSharedInterview(req.params.token);
+    return res.json({ success: true, data: result });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const updateGoal = async (req, res, next) => {
+  try {
+    const result = await interviewService.updateUserGoal(req.user._id, req.body);
+    return res.json({ success: true, data: result });
   } catch (error) {
     next(error);
   }

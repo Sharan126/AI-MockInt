@@ -22,8 +22,10 @@ import {
   BsBuildingCheck,
   BsBullseye,
   BsFileTextFill,
+  BsFire,
 } from 'react-icons/bs';
 import { FaPython, FaReact, FaJava } from 'react-icons/fa';
+import { FiArrowRight } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import './index.css';
 
@@ -136,6 +138,7 @@ function InterviewSetupPage() {
   const [selectedDifficulty, setSelectedDifficulty] = useState('medium');
   const [selectedPersona, setSelectedPersona] = useState('Natalie');
   const [jobDescription, setJobDescription] = useState('');
+  const [pressureMode, setPressureMode] = useState(false);
   const [resumeText, setResumeText] = useState('');
   const [resumeFileName, setResumeFileName] = useState('');
   const [loading, setLoading] = useState(false);
@@ -206,7 +209,8 @@ function InterviewSetupPage() {
         totalQuestions,
         selectedTrack,
         selectedPersona,
-        jobDescription
+        jobDescription,
+        pressureMode
       );
 
       toast.success('Interview started!');
@@ -435,6 +439,32 @@ function InterviewSetupPage() {
                 ))}
               </div>
             </div>
+
+            {/* Pressure Mode Drill Toggle */}
+            <div
+              className={`pressure-mode-card ${pressureMode ? 'active' : ''}`}
+              onClick={() => setPressureMode(!pressureMode)}
+            >
+              <div className="pressure-card-left">
+                <div className="pressure-card-icon">
+                  <BsFire />
+                </div>
+                <div>
+                  <div className="pressure-card-header">
+                    <strong>🔥 Bar Raiser Pressure Mode ("Grill Me Drill")</strong>
+                    <span className="pressure-status-tag">
+                      {pressureMode ? 'ENABLED' : 'OPTIONAL'}
+                    </span>
+                  </div>
+                  <p className="pressure-card-desc">
+                    AI interviewer challenges your responses with sharp follow-up pushback questions (edge cases, 100x traffic surges, trade-offs) before advancing.
+                  </p>
+                </div>
+              </div>
+              <div className="pressure-toggle-switch">
+                <div className={`switch-handle ${pressureMode ? 'on' : ''}`} />
+              </div>
+            </div>
           </div>
         )}
 
@@ -489,6 +519,20 @@ function InterviewSetupPage() {
                   real projects and experience.
                 </p>
               </div>
+            </div>
+
+            {/* ATS Studio Callout */}
+            <div
+              className="setup-ats-callout"
+              onClick={() => navigate('/resume-optimizer')}
+            >
+              <div className="ats-callout-left">
+                <span className="ats-callout-pill">ATS Studio</span>
+                <strong>Audit your resume against ATS filters & get STAR rewrites</strong>
+              </div>
+              <span className="ats-callout-btn">
+                Open Studio <FiArrowRight />
+              </span>
             </div>
 
             <div className="setup-resume-area">
@@ -549,6 +593,12 @@ function InterviewSetupPage() {
               <div className="summary-pill-item">
                 <span className="summary-pill-label">Interviewer:</span>
                 <span className="summary-pill-val">{selectedPersona}</span>
+              </div>
+              <div className="summary-pill-item">
+                <span className="summary-pill-label">Pressure Drill:</span>
+                <span className="summary-pill-val" style={{ color: pressureMode ? '#f59e0b' : 'inherit' }}>
+                  {pressureMode ? '🔥 Enabled' : 'Off'}
+                </span>
               </div>
               {jobDescription.trim() && (
                 <div className="summary-pill-item">
