@@ -5,7 +5,15 @@
 // Reference: mongoose.connect() - reference-mongodb.md
 // ============================================
 
+import dns from 'dns';
 import mongoose from 'mongoose';
+
+// Ensure SRV records for MongoDB Atlas resolve reliably across all networks
+try {
+  dns.setServers(['8.8.8.8', '8.8.4.4', '1.1.1.1']);
+} catch {
+  // Ignore in restricted environments
+}
 
 const connectDB = async () => {
   const mongoURI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/ai-mock-interview';
