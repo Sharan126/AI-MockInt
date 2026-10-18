@@ -138,3 +138,37 @@
   opacity: 0.5;
   cursor: not-allowed;
 }
+
+/* ============================================
+   VoiceRecorder Mobile Responsive Rules
+   ============================================ */
+@media (max-width: 480px) {
+  .vr-record-btn {
+    width: 100%;
+    justify-content: center;
+    min-height: 44px;
+  }
+
+  .vr-stop-btn {
+    width: 100%;
+    justify-content: center;
+    min-height: 44px;
+  }
+
+  .vr-audio-player {
+    width: 100%;
+  }
+
+  .vr-preview-actions {
+    flex-direction: column;
+    width: 100%;
+    gap: 10px;
+  }
+
+  .vr-rerecord-btn,
+  .vr-submit-btn {
+    width: 100%;
+    justify-content: center;
+    min-height: 44px;
+  }
+}

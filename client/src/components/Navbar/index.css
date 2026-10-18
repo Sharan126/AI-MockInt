@@ -97,3 +97,65 @@
 .logout-icon {
   font-size: 16px;
 }
+
+/* ============================================
+   Navbar Mobile Responsive Rules
+   ============================================ */
+@media (max-width: 768px) {
+  .navbar-container {
+    padding: 0 16px;
+  }
+
+  .navbar-left {
+    gap: 16px;
+  }
+
+  .nav-link {
+    padding: 6px 10px;
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 600px) {
+  .navbar-container {
+    padding: 0 12px;
+    height: 56px;
+  }
+
+  .navbar-left {
+    gap: 12px;
+  }
+
+  .brand-text {
+    font-size: 15px;
+  }
+
+  .user-name {
+    display: none;
+  }
+
+  .nav-link {
+    padding: 6px 8px;
+    font-size: 12px;
+    gap: 4px;
+  }
+
+  .nav-link-icon {
+    font-size: 16px;
+  }
+
+  .logout-btn {
+    padding: 6px 8px;
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 400px) {
+  .brand-text {
+    display: none;
+  }
+
+  .brand-icon {
+    font-size: 26px;
+  }
+}

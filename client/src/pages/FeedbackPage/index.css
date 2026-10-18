@@ -274,3 +274,38 @@
     justify-content: center;
   }
 }
+
+@media (max-width: 480px) {
+  .feedback-page {
+    padding: 16px 12px;
+  }
+
+  .feedback-heading {
+    font-size: 22px;
+  }
+
+  .feedback-role-text {
+    font-size: 15px;
+  }
+
+  .feedback-score-circle {
+    width: 88px;
+    height: 88px;
+  }
+
+  .feedback-score-number {
+    font-size: 26px;
+  }
+
+  .feedback-callout {
+    padding: 14px 12px;
+  }
+
+  .feedback-callout-heading {
+    font-size: 16px;
+  }
+
+  .feedback-callout-list {
+    padding-left: 16px;
+  }
+}

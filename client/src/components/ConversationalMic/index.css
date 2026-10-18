@@ -168,3 +168,36 @@
   color: #64748b;
   margin: 0;
 }
+
+/* ============================================
+   ConversationalMic Mobile Responsive Rules
+   ============================================ */
+@media (max-width: 480px) {
+  .cm-container {
+    padding: 16px 12px;
+  }
+
+  .cm-mic-button {
+    width: 56px;
+    height: 56px;
+  }
+
+  .cm-mic-icon {
+    font-size: 24px;
+  }
+
+  .cm-controls,
+  .cm-done-actions {
+    flex-direction: column;
+    width: 100%;
+    gap: 10px;
+  }
+
+  .cm-submit-btn,
+  .cm-speak-again-btn,
+  .cm-start-btn {
+    width: 100%;
+    justify-content: center;
+    min-height: 44px;
+  }
+}

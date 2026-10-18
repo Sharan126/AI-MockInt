@@ -41,6 +41,16 @@ select {
   outline: none;
 }
 
+/* Mobile viewport accessibility: prevents iOS Safari auto-zoom on input focus */
+@media screen and (max-width: 768px) {
+  input,
+  textarea,
+  select,
+  .form-input {
+    font-size: 16px !important;
+  }
+}
+
 /* ============================================
    Shared Button Classes
    Reference: ui-patterns.md (Button Patterns)

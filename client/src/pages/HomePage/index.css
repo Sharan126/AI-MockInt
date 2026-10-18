@@ -183,9 +183,46 @@
 
   .home-stats-row {
     flex-direction: column;
+    gap: 12px;
   }
 
   .home-welcome-heading {
     font-size: 28px;
+  }
+
+  .home-start-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .home-page {
+    padding: 16px 12px;
+  }
+
+  .home-welcome-heading {
+    font-size: 22px;
+  }
+
+  .home-welcome-subtitle {
+    font-size: 14px;
+  }
+
+  .home-stat-card {
+    padding: 16px;
+  }
+
+  .home-stat-number {
+    font-size: 36px;
+  }
+
+  .home-interviews-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .home-empty-cta-btn {
+    width: 100%;
+    justify-content: center;
   }
 }

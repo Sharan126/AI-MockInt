@@ -2,4 +2,12 @@
   border: 1px solid #e2e8f0;
   border-radius: 8px;
   overflow: hidden;
+  width: 100%;
+  max-width: 100%;
+}
+
+@media (max-width: 600px) {
+  .code-editor-wrapper {
+    border-radius: 6px;
+  }
 }
