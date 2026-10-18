@@ -10,7 +10,16 @@
 // ============================================
 
 import { Router } from 'express';
-import { registerUser, loginUser, getMe, logout } from '../controllers/auth.controller.js';
+import {
+  registerUser,
+  loginUser,
+  getMe,
+  logout,
+  googleAuthRedirect,
+  googleAuthCallback,
+  githubAuthRedirect,
+  githubAuthCallback,
+} from '../controllers/auth.controller.js';
 import authenticate from '../middleware/auth.middleware.js';
 
 const router = Router();
@@ -18,6 +27,14 @@ const router = Router();
 // Public routes (no auth needed)
 router.post('/register', registerUser);
 router.post('/login', loginUser);
+
+// OAuth routes for Google
+router.get('/google', googleAuthRedirect);
+router.get('/google/callback', googleAuthCallback);
+
+// OAuth routes for GitHub
+router.get('/github', githubAuthRedirect);
+router.get('/github/callback', githubAuthCallback);
 
 // Protected routes (auth required)
 router.get('/me', authenticate, getMe);

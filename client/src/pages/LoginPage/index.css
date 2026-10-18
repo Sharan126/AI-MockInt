@@ -286,3 +286,89 @@
     align-items: center;
   }
 }
+
+/* ---- Social Auth Buttons ---- */
+.login-social-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 24px 32px 0 32px;
+}
+
+.social-auth-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-family: "Roboto", sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  outline: none;
+}
+
+.social-google-btn {
+  background-color: #ffffff;
+  color: #1f2937;
+  border: 1px solid #d1d5db;
+}
+
+.social-google-btn:hover {
+  background-color: #f9fafb;
+  border-color: #9ca3af;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.social-github-btn {
+  background-color: #24292f;
+  color: #ffffff;
+  border: 1px solid #24292f;
+}
+
+.social-github-btn:hover {
+  background-color: #1b1f23;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+}
+
+.social-btn-icon {
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+/* ---- Social Divider ---- */
+.login-divider {
+  display: flex;
+  align-items: center;
+  margin: 20px 32px 0 32px;
+  gap: 12px;
+}
+
+.login-divider-line {
+  flex: 1;
+  height: 1px;
+  background-color: #e2e8f0;
+}
+
+.login-divider-text {
+  font-family: "Roboto", sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+@media (max-width: 640px) {
+  .login-social-buttons {
+    padding: 20px 20px 0 20px;
+  }
+
+  .login-divider {
+    margin: 16px 20px 0 20px;
+  }
+}

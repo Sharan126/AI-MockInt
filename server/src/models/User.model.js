@@ -26,10 +26,25 @@ const userSchema = new mongoose.Schema(
       trim: true,
     },
 
-    // Hashed password
+    // Hashed password (optional for OAuth users)
     password: {
       type: String,
-      required: [true, 'Password is required'],
+      required: function () {
+        return this.authProvider === 'local';
+      },
+    },
+
+    // Authentication provider
+    authProvider: {
+      type: String,
+      enum: ['local', 'google', 'github'],
+      default: 'local',
+    },
+
+    // Provider ID for OAuth
+    providerId: {
+      type: String,
+      default: '',
     },
 
     // URL to the user's profile picture

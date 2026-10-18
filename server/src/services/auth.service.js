@@ -90,3 +90,60 @@ export const getUserProfile = async (userId) => {
     lastLogin: user.lastLogin,
   };
 };
+
+/**
+ * Find or register user via social OAuth (Google or GitHub).
+ */
+export const socialLoginOrRegister = async ({
+  email,
+  name,
+  provider,
+  providerId,
+  picture,
+}) => {
+  if (!email) {
+    const error = new Error('No email address provided by OAuth provider.');
+    error.statusCode = 400;
+    throw error;
+  }
+
+  const normalizedEmail = email.toLowerCase().trim();
+
+  // Find user by email or providerId
+  let user = await User.findOne({ email: normalizedEmail });
+
+  if (user) {
+    // Update social info if not already set
+    if (!user.providerId && providerId) {
+      user.providerId = providerId;
+      user.authProvider = provider;
+    }
+    if (!user.picture && picture) {
+      user.picture = picture;
+    }
+    user.lastLogin = new Date();
+    await user.save();
+  } else {
+    // Create new OAuth user without password
+    user = await User.create({
+      name: name || normalizedEmail.split('@')[0],
+      email: normalizedEmail,
+      authProvider: provider,
+      providerId: providerId || '',
+      picture: picture || '',
+      lastLogin: new Date(),
+    });
+  }
+
+  const token = generateToken(user);
+
+  return {
+    token,
+    user: {
+      id: user._id,
+      email: user.email,
+      name: user.name,
+      picture: user.picture,
+    },
+  };
+};
