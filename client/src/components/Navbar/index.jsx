@@ -2,7 +2,14 @@ import { useContext } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext.jsx';
 import { ThemeContext } from '../../context/ThemeContext.jsx';
-import { BsCameraVideo, BsSunFill, BsMoonStarsFill, BsFileEarmarkCheck } from 'react-icons/bs';
+import {
+  BsCameraVideo,
+  BsSunFill,
+  BsMoonStarsFill,
+  BsFileEarmarkCheck,
+  BsStarFill,
+  BsCashStack,
+} from 'react-icons/bs';
 import { MdDashboard, MdHistory, MdSettings, MdLogout } from 'react-icons/md';
 import { FaUser } from 'react-icons/fa';
 import './index.css';
@@ -32,6 +39,20 @@ function Navbar() {
           >
             <MdDashboard className="nav-link-icon" />
             Dashboard
+          </Link>
+          <Link
+            to="/star-bank"
+            className={`nav-link ${location.pathname === '/star-bank' ? 'nav-link-active' : ''}`}
+          >
+            <BsStarFill className="nav-link-icon" />
+            STAR Vault
+          </Link>
+          <Link
+            to="/negotiate"
+            className={`nav-link ${location.pathname === '/negotiate' ? 'nav-link-active' : ''}`}
+          >
+            <BsCashStack className="nav-link-icon" />
+            Negotiate
           </Link>
           <Link
             to="/resume-optimizer"

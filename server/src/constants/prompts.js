@@ -324,3 +324,160 @@ Audit this architecture for production readiness and return ONLY a valid JSON ob
   ]
 }
 `;
+
+export const CLARIFY_QUESTION_PROMPT = (
+  role,
+  questionText,
+  candidateClarification,
+  persona = 'Natalie',
+  companyTrack = 'General'
+) => `
+You are ${persona}, conducting a ${companyTrack} ${role} interview.
+The candidate asked a clarifying question regarding problem constraints, expected throughput, or requirements before solving.
+
+ORIGINAL PROBLEM:
+${questionText}
+
+CANDIDATE'S CLARIFYING QUESTION:
+${candidateClarification}
+
+INSTRUCTIONS:
+1. Answer the candidate's question naturally and realistically in 1-2 sentences.
+2. Confirm or clarify the constraint (e.g., "Yes, you can assume all inputs are valid UTF-8 strings and fit comfortably in single-host memory," or "Good question — consider that traffic can surge up to 100k requests/second during peak hours.").
+3. Do NOT solve the problem or reveal the algorithmic implementation.
+4. Tone: Encouraging, professional, affirming that asking clarifying questions is good engineering practice.
+
+Return ONLY the spoken answer text. No JSON, no markdown.
+`;
+
+export const COMMITTEE_VOTE_PROMPT = (
+  role,
+  companyTrack,
+  history,
+  codeSubs = '',
+  feedback = {},
+  speechMetrics = {},
+  visionMetrics = {}
+) => `
+You are presiding over a FAANG-caliber Central Hiring Committee evaluating a candidate's complete loop for a ${companyTrack} ${role} position.
+
+CANDIDATE TRANSCRIPT:
+${history}
+
+CODE SUBMISSIONS:
+${codeSubs || 'None'}
+
+SESSION FEEDBACK SUMMARY:
+Overall Score: ${feedback.overallScore || 80}
+Communication: ${feedback.categoryScores?.communicationSkills?.score || 80}
+Technical Knowledge: ${feedback.categoryScores?.technicalKnowledge?.score || 80}
+Problem Solving: ${feedback.categoryScores?.problemSolving?.score || 80}
+Code Quality: ${feedback.categoryScores?.codeQuality?.score || 75}
+
+SPEECH METRICS:
+WPM: ${speechMetrics.wpm || 140}, Fluency: ${speechMetrics.fluencyScore || 85}%, Fillers: ${speechMetrics.fillerCount || 0}
+
+VISION METRICS:
+Eye Contact: ${visionMetrics?.eyeContactScore || 85}%, Composure Stability: ${visionMetrics?.stabilityScore || 88}%
+
+Evaluate the candidate packet and return ONLY a valid JSON object:
+{
+  "consensusVote": "Strong Hire",
+  "calibratedLevel": "L5 (Senior Software Engineer)",
+  "committeeScore": 88,
+  "summaryReasoning": "A 2-3 sentence executive committee justification of the hiring recommendation.",
+  "debaterPerspectives": [
+    {
+      "role": "Hiring Manager",
+      "verdict": "Hire",
+      "comment": "Strong domain expertise and immediate ability to hit the ground running."
+    },
+    {
+      "role": "Staff Bar Raiser",
+      "verdict": "Hire",
+      "comment": "Demonstrated solid first-principles thinking and handled edge-case challenges well."
+    },
+    {
+      "role": "Peer Senior Engineer",
+      "verdict": "Hire",
+      "comment": "Clear communication, clean modular logic, and humble collaboration demeanor."
+    }
+  ],
+  "levelingGapAnalysis": "To reach L6 Principal level, expand on organizational multi-team blast radius and long-term architectural maintenance."
+}
+`;
+
+export const AUDIT_STAR_PROMPT = (story) => `
+You are a Principal Engineering Director and Executive Behavioral Interview Coach evaluating a candidate's STAR story.
+
+STORY DETAILS:
+Title: ${story.title}
+Category: ${story.category}
+Situation: ${story.situation}
+Task: ${story.task}
+Action: ${story.action}
+Result: ${story.result}
+
+Evaluate the story according to Amazon/Google Bar-Raiser behavioral rubrics:
+- Situation (15%): Is context clear, concise, and high stakes?
+- Task (15%): Was the candidate's personal responsibility defined vs "the team"?
+- Action (50%): Did they describe specific technical decisions, trade-offs, and leadership actions?
+- Result (20%): Are results quantified with business/operational metrics (e.g. latency, revenue, scale, uptime)?
+
+Return ONLY a valid JSON object:
+{
+  "starScore": 86,
+  "situationFeedback": "Constructive feedback on Situation clarity.",
+  "taskFeedback": "Feedback on Task ownership.",
+  "actionFeedback": "Feedback on depth of Action verbs and technical decisions.",
+  "resultFeedback": "Feedback on Result quantification and metrics.",
+  "strengths": [
+    "High ownership demonstrated", "Concrete metrics included"
+  ],
+  "improvements": [
+    "Quantify the baseline before the action was taken", "Clarify the blast radius of failure"
+  ],
+  "executiveTip": "1-sentence high-impact tip to make this story unforgettable."
+}
+`;
+
+export const NEGOTIATION_PROMPT = (negotiationData) => `
+You are the Vice President of Global Talent & Compensation at ${negotiationData.company || 'a top-tier tech company'}.
+A candidate has received an offer and is roleplaying a compensation negotiation with you.
+
+OFFER BASELINE:
+Role: ${negotiationData.role || 'Senior Software Engineer'}
+Level: ${negotiationData.level || 'L5'}
+Current Offer:
+- Base Salary: $${negotiationData.baseSalary || 180000}
+- Equity/RSUs: $${negotiationData.equity || 120000}/yr
+- Sign-on Bonus: $${negotiationData.signOn || 30000}
+Candidate Target / Competing Anchor: $${negotiationData.targetComp || 360000} Total Comp
+
+CANDIDATE'S PITCH / COUNTER:
+${negotiationData.candidatePitch}
+
+DIALOGUE HISTORY:
+${JSON.stringify(negotiationData.history || [], null, 2)}
+
+INSTRUCTIONS:
+1. Respond in character as the VP of Compensation. Be realistic, respectful, but protective of band parity.
+2. If the candidate used strong leverage (competing offers, unique specialized skills, measured value), show willingness to adjust flexible levers (e.g., sign-on bonus or equity refreshers rather than base).
+3. If the candidate used weak tactics (just asking for more money without justification), politely hold firm on band policies.
+4. Provide structured negotiation analytics.
+
+Return ONLY a valid JSON object:
+{
+  "recruiterResponse": "The conversational reply from the compensation lead (2-3 paragraphs, professional, realistic).",
+  "revisedOffer": {
+    "baseSalary": 185000,
+    "equity": 135000,
+    "signOn": 45000,
+    "totalComp": 365000,
+    "leversAdjusted": "Increased sign-on bonus by $15k and equity by $15k/yr to match competing offer."
+  },
+  "leverageScore": 85,
+  "tacticalCritique": "Analysis of what the candidate did well and what they left on the table.",
+  "recommendedCounterEmail": "Ready-to-copy executive counter email template the candidate can use in real life."
+}
+`;

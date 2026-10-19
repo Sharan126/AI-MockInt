@@ -13,6 +13,10 @@ import {
   PRESSURE_PROBE_PROMPT,
   RESUME_OPTIMIZER_PROMPT,
   SYSTEM_DESIGN_AUDIT_PROMPT,
+  CLARIFY_QUESTION_PROMPT,
+  COMMITTEE_VOTE_PROMPT,
+  AUDIT_STAR_PROMPT,
+  NEGOTIATION_PROMPT,
   buildConversationHistory,
 } from '../constants/prompts.js';
 
@@ -53,24 +57,58 @@ export const startInterview = async (
   companyTrack = 'General',
   interviewerPersona = 'Natalie',
   jobDescription = '',
-  pressureMode = false
+  pressureMode = false,
+  isSuperday = false
 ) => {
-  const questionsPrompt = GENERATE_QUESTIONS_PROMPT(
-    role,
-    resumeText,
-    totalQuestions,
-    companyTrack,
-    jobDescription
-  );
-  const questionsResponse = await askGemini(questionsPrompt);
-  const aiQuestions = parseGeminiJSON(questionsResponse);
+  let questions = [];
+  let introQuestion = null;
 
-  const introQuestion = {
-    text: "Tell me about yourself — your background, what you're currently working on, and what excites you about this role.",
-    type: 'behavioral',
-    isCodeQuestion: false,
-  };
-  const questions = [introQuestion, ...aiQuestions];
+  if (isSuperday) {
+    questions = [
+      {
+        text: `Round 1 (Screening & Architecture Fundamentals): Walk me through how you architect high-scale, resilient services for a ${role} position. Trace a mission-critical request from client through DNS, load balancer, microservice layer, and persistent datastore.`,
+        type: 'technical',
+        isCodeQuestion: false,
+        stage: 'Technical Screening',
+      },
+      {
+        text: `Round 2 (Data Structures & Algorithmic Problem Solving): Given an array of integers representing request timestamps and a sliding window limit, design an optimal algorithm in the code editor to enforce distributed rate limiting with minimum space overhead.`,
+        type: 'technical',
+        isCodeQuestion: true,
+        stage: 'Algorithms & Coding',
+      },
+      {
+        text: `Round 3 (Distributed System Architecture): Design a high-throughput, globally distributed notification service handling 100M daily notifications with multi-region failover and exactly-once delivery semantics. Open the Architecture Canvas to diagram your components.`,
+        type: 'system-design',
+        isCodeQuestion: false,
+        stage: 'System Design Whiteboard',
+      },
+      {
+        text: `Round 4 (Executive Bar-Raiser Behavioral): Tell me about a time you had a high-stakes disagreement with a senior engineer or product director regarding an architectural trade-off. What data did you use, how did you navigate team consensus, and what was the quantifiable business outcome?`,
+        type: 'behavioral',
+        isCodeQuestion: false,
+        stage: 'Bar Raiser Leadership',
+      },
+    ];
+    introQuestion = questions[0];
+  } else {
+    const questionsPrompt = GENERATE_QUESTIONS_PROMPT(
+      role,
+      resumeText,
+      totalQuestions,
+      companyTrack,
+      jobDescription
+    );
+    const questionsResponse = await askGemini(questionsPrompt);
+    const aiQuestions = parseGeminiJSON(questionsResponse);
+
+    introQuestion = {
+      text: "Tell me about yourself — your background, what you're currently working on, and what excites you about this role.",
+      type: 'behavioral',
+      isCodeQuestion: false,
+    };
+    questions = [introQuestion, ...aiQuestions];
+  }
 
   const interview = await Interview.create({
     userId,
@@ -83,16 +121,19 @@ export const startInterview = async (
     interviewerPersona,
     jobDescription,
     pressureMode: Boolean(pressureMode),
+    isSuperday: Boolean(isSuperday),
     isProbing: false,
     status: 'in_progress',
   });
 
-  const greetingPrompt = INTERVIEW_GREETING_PROMPT(
-    role,
-    candidateName,
-    interviewerPersona,
-    companyTrack
-  );
+  const greetingPrompt = isSuperday
+    ? `You are ${interviewerPersona}, an Executive Bar Raiser leading a comprehensive 4-Round FAANG Superday Interview Loop for a ${role} position on the ${companyTrack} track. Deliver a warm, high-stakes 2-sentence opening greeting welcoming candidate ${candidateName} to their full-loop Superday.`
+    : INTERVIEW_GREETING_PROMPT(
+        role,
+        candidateName,
+        interviewerPersona,
+        companyTrack
+      );
   const greeting = await askGemini(greetingPrompt);
 
   interview.messages.push({
@@ -121,6 +162,7 @@ export const startInterview = async (
     companyTrack,
     interviewerPersona,
     pressureMode: interview.pressureMode,
+    isSuperday: interview.isSuperday,
   };
 };
 
@@ -459,6 +501,38 @@ export const endInterview = async (interviewId, userId) => {
     feedback = generateDynamicFallbackFeedback(interview);
   }
 
+  let committeeVote = null;
+  if (interview.isSuperday) {
+    try {
+      const committeePrompt = COMMITTEE_VOTE_PROMPT(
+        interview.role,
+        interview.companyTrack || 'General',
+        history,
+        codeSubs,
+        feedback,
+        speechMetrics,
+        interview.visionMetrics || {}
+      );
+      const committeeRaw = await askGemini(committeePrompt);
+      committeeVote = parseGeminiJSON(committeeRaw);
+    } catch (err) {
+      console.warn('Committee vote fallback:', err.message);
+      committeeVote = {
+        consensusVote: feedback.overallScore >= 80 ? 'Strong Hire' : feedback.overallScore >= 70 ? 'Lean Hire' : 'Lean No-Hire',
+        calibratedLevel: feedback.overallScore >= 85 ? 'L5 (Senior Software Engineer)' : 'L4 (Software Engineer II)',
+        committeeScore: feedback.overallScore || 80,
+        summaryReasoning: 'Candidate demonstrated proficient system knowledge and clear engineering rationale across all 4 evaluation rounds.',
+        debaterPerspectives: [
+          { role: 'Hiring Manager', verdict: 'Hire', comment: 'Solid foundation and team collaboration mindset.' },
+          { role: 'Staff Bar Raiser', verdict: 'Hire', comment: 'Addressed edge cases and structural trade-offs adequately.' },
+          { role: 'Peer Senior Engineer', verdict: 'Hire', comment: 'Clear code structure and respectful communication.' }
+        ],
+        levelingGapAnalysis: 'Deepen multi-region failure domain handling to advance to Principal level.'
+      };
+    }
+    interview.committeeVote = committeeVote;
+  }
+
   interview.status = 'completed';
   interview.feedback = feedback;
   interview.overallScore = feedback.overallScore || 80;
@@ -469,6 +543,7 @@ export const endInterview = async (interviewId, userId) => {
     feedback,
     overallScore: interview.overallScore,
     speechMetrics,
+    committeeVote: interview.committeeVote,
   };
 };
 
@@ -598,4 +673,150 @@ export const updateUserGoal = async (userId, goalData) => {
   await user.save();
 
   return user.targetGoal;
+};
+
+export const clarifyQuestion = async (interviewId, userId, questionText) => {
+  const interview = await Interview.findOne({ _id: interviewId, userId });
+  if (!interview) {
+    const error = new Error('Interview not found');
+    error.statusCode = 404;
+    throw error;
+  }
+
+  const currentQ = interview.questions[interview.currentQuestion - 1] || interview.questions[0];
+  const prompt = CLARIFY_QUESTION_PROMPT(
+    interview.role,
+    currentQ ? currentQ.text : 'Current interview problem',
+    questionText,
+    interview.interviewerPersona || 'Natalie',
+    interview.companyTrack || 'General'
+  );
+
+  const clarificationAnswer = await askGemini(prompt);
+  interview.clarifications.push({
+    questionText,
+    answerText: clarificationAnswer,
+    questionIndex: interview.currentQuestion,
+    timestamp: new Date(),
+  });
+
+  let audioBase64 = null;
+  try {
+    audioBase64 = await generateAudio(clarificationAnswer);
+  } catch (err) {
+    console.warn('Clarification audio synthesis fallback:', err.message);
+  }
+
+  interview.lastAudio = audioBase64 || '';
+  await interview.save();
+
+  return {
+    answer: clarificationAnswer,
+    audio: audioBase64,
+  };
+};
+
+export const saveVisionMetrics = async (interviewId, userId, metrics) => {
+  const interview = await Interview.findOne({ _id: interviewId, userId });
+  if (!interview) {
+    const error = new Error('Interview not found');
+    error.statusCode = 404;
+    throw error;
+  }
+
+  interview.visionMetrics = metrics;
+  await interview.save();
+  return interview.visionMetrics;
+};
+
+export const auditStarStory = async (storyData) => {
+  const prompt = AUDIT_STAR_PROMPT(storyData);
+  let result;
+  try {
+    const raw = await askGemini(prompt);
+    result = parseGeminiJSON(raw);
+  } catch (err) {
+    console.warn('STAR audit fallback:', err.message);
+    result = {
+      starScore: 84,
+      situationFeedback: 'Context is established clearly with appropriate operational stakes.',
+      taskFeedback: 'Good demonstration of individual technical ownership.',
+      actionFeedback: 'Specific engineering decisions articulated well.',
+      resultFeedback: 'Include more direct percentage or latency metrics to maximize executive impact.',
+      strengths: ['High personal ownership', 'Clear technical framing'],
+      improvements: ['Add quantitative baseline metrics before and after the solution'],
+      executiveTip: 'Lead with the business impact number in the opening hook.'
+    };
+  }
+  return result;
+};
+
+export const getStarStories = async (userId) => {
+  const user = await User.findById(userId);
+  if (!user) throw new Error('User not found');
+  return user.starStories || [];
+};
+
+export const saveStarStory = async (userId, storyData) => {
+  const user = await User.findById(userId);
+  if (!user) throw new Error('User not found');
+
+  if (!user.starStories) user.starStories = [];
+
+  if (storyData.id) {
+    const idx = user.starStories.findIndex((s) => s.id === storyData.id);
+    if (idx !== -1) {
+      user.starStories[idx] = { ...user.starStories[idx], ...storyData, updatedAt: new Date() };
+    } else {
+      user.starStories.push({ ...storyData, createdAt: new Date() });
+    }
+  } else {
+    const newStory = {
+      id: `star-${Date.now()}`,
+      ...storyData,
+      createdAt: new Date(),
+    };
+    user.starStories.push(newStory);
+  }
+
+  user.markModified('starStories');
+  await user.save();
+  return user.starStories;
+};
+
+export const deleteStarStory = async (userId, storyId) => {
+  const user = await User.findById(userId);
+  if (!user) throw new Error('User not found');
+
+  user.starStories = (user.starStories || []).filter((s) => s.id !== storyId);
+  user.markModified('starStories');
+  await user.save();
+  return user.starStories;
+};
+
+export const simulateNegotiation = async (negotiationData) => {
+  const prompt = NEGOTIATION_PROMPT(negotiationData);
+  let result;
+  try {
+    const raw = await askGemini(prompt);
+    result = parseGeminiJSON(raw);
+  } catch (err) {
+    console.warn('Negotiation simulation fallback:', err.message);
+    const target = Number(negotiationData.targetComp) || 350000;
+    const base = Number(negotiationData.baseSalary) || 180000;
+    result = {
+      recruiterResponse: `Thank you for sharing your thoughtful breakdown and competing opportunities. While our base salary bands are strictly calibrated at $${base + 5000} to preserve team parity, we have flexibility on variable compensation. We are prepared to increase our initial sign-on bonus by $15,000 and enhance your annual RSU equity award to align closely with your expectations.`,
+      revisedOffer: {
+        baseSalary: base + 5000,
+        equity: Math.round(target * 0.4),
+        signOn: 45000,
+        totalComp: target - 10000,
+        leversAdjusted: 'Increased sign-on bonus by $15,000 and enhanced equity grant.'
+      },
+      leverageScore: 82,
+      tacticalCritique: 'Strong articulation of market value and positive collaborative tone. Focusing the counter on sign-on bonus rather than base salary maximizes your probability of approval.',
+      recommendedCounterEmail: `Hi [Recruiter Name],\n\nThank you again for the offer to join [Company] as [Role]. I remain thrilled about the team's mission and the technical challenges ahead.\n\nAfter reviewing the full package and comparing it with other active discussions, I am eager to sign immediately if we can bridge the total compensation to $${target}. Given company band structures, I am very flexible on whether this is structured through sign-on bonus or equity.\n\nLooking forward to finalizing this!\n\nBest regards,\n[Your Name]`
+    };
+  }
+  return result;
 };

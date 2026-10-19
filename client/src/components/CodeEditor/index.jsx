@@ -43,9 +43,11 @@ function CodeEditor({
   const [fontSize, setFontSize] = useState(14);
   const [isRunning, setIsRunning] = useState(false);
   const [showDrawer, setShowDrawer] = useState(false);
-  const [activeTab, setActiveTab] = useState('console'); // 'console' | 'tests'
+  const [activeTab, setActiveTab] = useState('console'); // 'console' | 'tests' | 'custom'
   const [terminalOutput, setTerminalOutput] = useState(null);
   const [testResults, setTestResults] = useState(null);
+  const [customInput, setCustomInput] = useState('console.log("Custom test running...");');
+  const [customOutput, setCustomOutput] = useState(null);
 
   // Default fallback test cases if none provided
   const activeTestCases =
@@ -174,9 +176,55 @@ function CodeEditor({
     }
   };
 
+  const handleRunCustomTest = () => {
+    setIsRunning(true);
+    setShowDrawer(true);
+    setActiveTab('custom');
+    const logs = [];
+    const startTime = performance.now();
+
+    try {
+      const safeConsole = {
+        log: (...args) => logs.push(args.map(formatArg).join(' ')),
+        warn: (...args) => logs.push('⚠️ ' + args.map(formatArg).join(' ')),
+        error: (...args) => logs.push('❌ ' + args.map(formatArg).join(' ')),
+        info: (...args) => logs.push('ℹ️ ' + args.map(formatArg).join(' ')),
+      };
+
+      const runner = new Function(
+        'console',
+        `
+        "use strict";
+        ${value || ''}
+        ${customInput || ''}
+      `
+      );
+      const result = runner(safeConsole);
+      const duration = (performance.now() - startTime).toFixed(1);
+      if (result !== undefined) {
+        logs.push(`=> ${formatArg(result)}`);
+      }
+      setCustomOutput({
+        status: 'success',
+        logs: logs.length ? logs : ['Custom execution completed (no return or logs).'],
+        duration,
+      });
+    } catch (err) {
+      const duration = (performance.now() - startTime).toFixed(1);
+      setCustomOutput({
+        status: 'error',
+        logs: [...logs, `Runtime Error: ${err.message}`],
+        duration,
+      });
+    } finally {
+      setIsRunning(false);
+    }
+  };
+
   const handleClearTerminal = () => {
     setTerminalOutput(null);
     setTestResults(null);
+    setCustomOutput(null);
   };
 
   const allPassed = testResults && testResults.every((r) => r.passed);
@@ -330,6 +378,15 @@ function CodeEditor({
                   </span>
                 )}
               </button>
+
+              <button
+                type="button"
+                className={`terminal-tab-btn ${activeTab === 'custom' ? 'active-tab' : ''}`}
+                onClick={() => setActiveTab('custom')}
+              >
+                <BsTerminalFill />
+                Custom Run
+              </button>
             </div>
 
             <div className="terminal-actions">
@@ -443,6 +500,64 @@ function CodeEditor({
                           <code className="tc-code">{tc.actual}</code>
                         </div>
                       </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {activeTab === 'custom' && (
+              <div className="custom-test-panel" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <p style={{ margin: 0, fontSize: '0.78rem', color: '#94a3b8' }}>
+                  Write custom verification code, arguments, or assertions to invoke your solution:
+                </p>
+                <textarea
+                  rows={3}
+                  value={customInput}
+                  onChange={(e) => setCustomInput(e.target.value)}
+                  style={{
+                    width: '100%',
+                    background: '#0f172a',
+                    color: '#e2e8f0',
+                    border: '1px solid #334155',
+                    borderRadius: '6px',
+                    padding: '8px',
+                    fontFamily: 'monospace',
+                    fontSize: '0.8rem',
+                  }}
+                  placeholder="// e.g. console.log(yourFunction([1, 2, 3]));"
+                />
+                <button
+                  type="button"
+                  onClick={handleRunCustomTest}
+                  disabled={isRunning}
+                  style={{
+                    alignSelf: 'flex-start',
+                    background: '#2563eb',
+                    color: '#fff',
+                    border: 'none',
+                    borderRadius: '6px',
+                    padding: '6px 14px',
+                    fontSize: '0.8rem',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                  }}
+                >
+                  {isRunning ? 'Running...' : 'Execute Custom Run'}
+                </button>
+
+                {customOutput && (
+                  <div className="terminal-output-feed" style={{ marginTop: '8px' }}>
+                    <div className="terminal-status-row">
+                      <span className={`terminal-status-badge status-${customOutput.status}`}>
+                        {customOutput.status.toUpperCase()}
+                      </span>
+                      <span className="terminal-runtime-badge">⚡ {customOutput.duration}ms</span>
+                    </div>
+                    {customOutput.logs.map((logLine, idx) => (
+                      <pre key={idx} className="terminal-line terminal-line-log">
+                        {logLine}
+                      </pre>
                     ))}
                   </div>
                 )}

@@ -21,6 +21,9 @@ import {
   BsBuildingCheck,
   BsSpeedometer2,
   BsDiagram3,
+  BsAwardFill,
+  BsEyeFill,
+  BsPersonCheckFill,
 } from 'react-icons/bs';
 import { FiShare2, FiFileText, FiArrowRight, FiCheck } from 'react-icons/fi';
 import toast from 'react-hot-toast';
@@ -173,6 +176,9 @@ function FeedbackPage() {
     interviewerPersona = 'Natalie',
     jobDescription = '',
     speechMetrics,
+    committeeVote,
+    visionMetrics,
+    isSuperday,
     questions = [],
     messages = [],
   } = interview;
@@ -398,6 +404,132 @@ function FeedbackPage() {
             </div>
           </div>
         </div>
+
+        {/* FAANG Hiring Committee Packet (Superday Mode) */}
+        {(committeeVote || isSuperday) && (
+          <div className="feedback-committee-card">
+            <div className="committee-header">
+              <div className="committee-title-group">
+                <BsAwardFill className="committee-award-icon" />
+                <div>
+                  <div className="committee-badge-row">
+                    <span className="committee-tag">FAANG HIRING COMMITTEE PACKET</span>
+                    {committeeVote?.calibratedLevel && (
+                      <span className="committee-level-badge">
+                        Calibration: <strong>{committeeVote.calibratedLevel}</strong>
+                      </span>
+                    )}
+                  </div>
+                  <h3 className="committee-card-title">Superday Consensus Decision</h3>
+                </div>
+              </div>
+
+              {committeeVote?.consensusVote && (
+                <div
+                  className={`committee-consensus-badge vote-${committeeVote.consensusVote.toLowerCase().replace(/[^a-z0-9]/g, '-')}`}
+                >
+                  <BsPersonCheckFill />
+                  <span>{committeeVote.consensusVote.toUpperCase()}</span>
+                </div>
+              )}
+            </div>
+
+            {committeeVote?.summaryReasoning && (
+              <blockquote className="committee-summary-quote">
+                “{committeeVote.summaryReasoning}”
+              </blockquote>
+            )}
+
+            {/* Debaters grid */}
+            {committeeVote?.debaterPerspectives && (
+              <div className="committee-debaters-grid">
+                {committeeVote.debaterPerspectives.map((debater, idx) => (
+                  <div key={idx} className="debater-card">
+                    <div className="debater-header">
+                      <span className="debater-role">{debater.role}</span>
+                      <span
+                        className={`debater-verdict ${
+                          debater.verdict.toLowerCase().includes('hire')
+                            ? 'verdict-hire'
+                            : 'verdict-nohire'
+                        }`}
+                      >
+                        {debater.verdict}
+                      </span>
+                    </div>
+                    <p className="debater-comment">{debater.comment}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {committeeVote?.levelingGapAnalysis && (
+              <div className="committee-gap-box">
+                <strong>📈 Leveling Calibration & Gap Analysis:</strong>
+                <p>{committeeVote.levelingGapAnalysis}</p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Executive Presence & Non-Verbal Telemetry Card */}
+        {visionMetrics && (
+          <div className="feedback-vision-card">
+            <div className="speech-card-header">
+              <div className="speech-title-group">
+                <BsEyeFill className="vision-header-icon" />
+                <div>
+                  <h3 className="speech-card-title">Executive Presence & Vision Telemetry</h3>
+                  <p className="speech-card-sub">
+                    Webcam canvas analysis measuring eye contact consistency, posture composure, and camera framing.
+                  </p>
+                </div>
+              </div>
+              <div className="fluency-pill" style={{ borderColor: '#38bdf8', color: '#38bdf8' }}>
+                Presence Score: <strong>{visionMetrics.overallPresence || 88}%</strong>
+              </div>
+            </div>
+
+            <div className="speech-metrics-grid">
+              <div className="speech-metric-box">
+                <span className="metric-box-label">Eye Contact Consistency</span>
+                <div className="metric-box-val-row">
+                  <span className="metric-box-number">{visionMetrics.eyeContactScore || 88}</span>
+                  <span className="metric-box-unit">%</span>
+                </div>
+                <span className="metric-box-hint">
+                  {visionMetrics.eyeContactScore >= 85
+                    ? '✨ Strong engagement with lens'
+                    : 'Frequent gaze deviation from interviewer'}
+                </span>
+              </div>
+
+              <div className="speech-metric-box">
+                <span className="metric-box-label">Composure & Stability</span>
+                <div className="metric-box-val-row">
+                  <span className="metric-box-number">{visionMetrics.composureScore || 92}</span>
+                  <span className="metric-box-unit">%</span>
+                </div>
+                <span className="metric-box-hint">
+                  {visionMetrics.stability === 'Steady'
+                    ? '🏆 High composure; calm body posture'
+                    : 'Normal movement & gestures'}
+                </span>
+              </div>
+
+              <div className="speech-metric-box">
+                <span className="metric-box-label">Framing & Lighting</span>
+                <div className="metric-box-val-row">
+                  <span className="metric-box-number">{visionMetrics.framingScore || 90}</span>
+                  <span className="metric-box-unit">%</span>
+                </div>
+                <span className="metric-box-hint">
+                  Centered portrait framing with balanced key lighting.
+                </span>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Visual Analytics: Radar Chart & Category Scores */}
         <div className="feedback-analytics-layout">

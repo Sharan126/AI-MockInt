@@ -1117,3 +1117,250 @@
   background: #4f46e5;
 }
 
+/* Hiring Committee Consensus Card */
+.feedback-committee-card {
+  background: var(--color-surface, #ffffff);
+  border: 1.5px solid #10b981;
+  border-radius: 14px;
+  padding: 24px;
+  margin-bottom: 24px;
+  box-shadow: 0 8px 24px rgba(16, 185, 129, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  position: relative;
+  overflow: hidden;
+}
+
+[data-theme='dark'] .feedback-committee-card {
+  background: #1e293b;
+  border-color: #059669;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+}
+
+.committee-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.committee-title-group {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.committee-award-icon {
+  font-size: 2.2rem;
+  color: #10b981;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.committee-badge-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 4px;
+}
+
+.committee-tag {
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: #059669;
+  background: rgba(16, 185, 129, 0.15);
+  padding: 3px 8px;
+  border-radius: 6px;
+}
+
+[data-theme='dark'] .committee-tag {
+  color: #6ee7b7;
+  background: rgba(16, 185, 129, 0.25);
+}
+
+.committee-level-badge {
+  font-size: 0.75rem;
+  color: #6366f1;
+  background: rgba(99, 102, 241, 0.1);
+  padding: 3px 8px;
+  border-radius: 6px;
+}
+
+[data-theme='dark'] .committee-level-badge {
+  color: #a5b4fc;
+  background: rgba(99, 102, 241, 0.2);
+}
+
+.committee-card-title {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: var(--color-text, #0f172a);
+  margin: 0;
+}
+
+.committee-consensus-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 18px;
+  border-radius: 30px;
+  font-size: 0.85rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  color: #ffffff;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+}
+
+.committee-consensus-badge.vote-strong-hire {
+  background: linear-gradient(135deg, #10b981, #059669);
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35);
+}
+
+.committee-consensus-badge.vote-hire,
+.committee-consensus-badge.vote-lean-hire {
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
+}
+
+.committee-consensus-badge.vote-lean-no-hire {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  box-shadow: 0 4px 14px rgba(245, 158, 11, 0.35);
+}
+
+.committee-consensus-badge.vote-no-hire {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  box-shadow: 0 4px 14px rgba(239, 68, 68, 0.35);
+}
+
+.committee-summary-quote {
+  margin: 0;
+  padding: 12px 18px;
+  background: rgba(16, 185, 129, 0.05);
+  border-left: 4px solid #10b981;
+  border-radius: 0 8px 8px 0;
+  font-size: 0.95rem;
+  color: var(--color-text, #334155);
+  line-height: 1.6;
+  font-style: italic;
+}
+
+[data-theme='dark'] .committee-summary-quote {
+  background: rgba(16, 185, 129, 0.1);
+  color: #e2e8f0;
+}
+
+.committee-debaters-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+@media (max-width: 768px) {
+  .committee-debaters-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.debater-card {
+  background: rgba(0, 0, 0, 0.02);
+  border: 1px solid var(--color-border, #e2e8f0);
+  border-radius: 10px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+[data-theme='dark'] .debater-card {
+  background: rgba(15, 23, 42, 0.5);
+  border-color: #334155;
+}
+
+.debater-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.debater-role {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--color-text, #0f172a);
+}
+
+.debater-verdict {
+  font-size: 0.7rem;
+  font-weight: 800;
+  padding: 2px 7px;
+  border-radius: 4px;
+}
+
+.debater-verdict.verdict-hire {
+  background: rgba(16, 185, 129, 0.15);
+  color: #10b981;
+}
+
+.debater-verdict.verdict-nohire {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+}
+
+.debater-comment {
+  font-size: 0.8rem;
+  color: var(--color-text-muted, #64748b);
+  margin: 0;
+  line-height: 1.45;
+}
+
+.committee-gap-box {
+  background: rgba(99, 102, 241, 0.06);
+  border: 1px solid rgba(99, 102, 241, 0.2);
+  border-radius: 8px;
+  padding: 12px 16px;
+}
+
+.committee-gap-box strong {
+  display: block;
+  font-size: 0.82rem;
+  color: #6366f1;
+  margin-bottom: 4px;
+}
+
+[data-theme='dark'] .committee-gap-box strong {
+  color: #a5b4fc;
+}
+
+.committee-gap-box p {
+  font-size: 0.82rem;
+  color: var(--color-text, #334155);
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Executive Presence & Vision Telemetry Card */
+.feedback-vision-card {
+  background: var(--color-surface, #ffffff);
+  border: 1px solid #38bdf8;
+  border-radius: 12px;
+  padding: 20px 24px;
+  margin-bottom: 24px;
+  box-shadow: 0 4px 16px rgba(56, 189, 248, 0.08);
+}
+
+[data-theme='dark'] .feedback-vision-card {
+  background: #1e293b;
+  border-color: #0284c7;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+}
+
+.vision-header-icon {
+  font-size: 2rem;
+  color: #38bdf8;
+  flex-shrink: 0;
+}
+
+

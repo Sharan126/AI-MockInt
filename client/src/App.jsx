@@ -14,6 +14,8 @@ import HistoryPage from './pages/HistoryPage';
 import SettingsPage from './pages/SettingsPage';
 import ResumeOptimizerPage from './pages/ResumeOptimizerPage/index.jsx';
 import SharedReviewPage from './pages/SharedReviewPage/index.jsx';
+import StarBankPage from './pages/StarBankPage/index.jsx';
+import SalaryNegotiatorPage from './pages/SalaryNegotiatorPage/index.jsx';
 
 function App() {
   return (
@@ -58,6 +60,26 @@ function App() {
             <ProtectedRoute>
               <Navbar />
               <InterviewSetupPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/star-bank"
+          element={
+            <ProtectedRoute>
+              <Navbar />
+              <StarBankPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/negotiate"
+          element={
+            <ProtectedRoute>
+              <Navbar />
+              <SalaryNegotiatorPage />
             </ProtectedRoute>
           }
         />

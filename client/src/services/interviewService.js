@@ -22,7 +22,8 @@ const startInterview = async (
   companyTrack = 'General',
   interviewerPersona = 'Natalie',
   jobDescription = '',
-  pressureMode = false
+  pressureMode = false,
+  isSuperday = false
 ) => {
   const response = await API.post('/interview/start', {
     role,
@@ -32,6 +33,7 @@ const startInterview = async (
     interviewerPersona,
     jobDescription,
     pressureMode,
+    isSuperday,
   });
   return response.data.data;
 };
@@ -93,6 +95,41 @@ const updateGoal = async (goalData) => {
   return response.data.data;
 };
 
+const clarifyQuestion = async (interviewId, questionText) => {
+  const response = await API.post(`/interview/${interviewId}/clarify`, { questionText });
+  return response.data.data;
+};
+
+const saveVisionMetrics = async (interviewId, metrics) => {
+  const response = await API.post(`/interview/${interviewId}/vision`, metrics);
+  return response.data.data;
+};
+
+const auditStarStory = async (storyData) => {
+  const response = await API.post('/interview/star/audit', storyData);
+  return response.data.data;
+};
+
+const getStarStories = async () => {
+  const response = await API.get('/interview/star');
+  return response.data.data;
+};
+
+const saveStarStory = async (storyData) => {
+  const response = await API.post('/interview/star', storyData);
+  return response.data.data;
+};
+
+const deleteStarStory = async (storyId) => {
+  const response = await API.delete(`/interview/star/${storyId}`);
+  return response.data.data;
+};
+
+const simulateNegotiation = async (negotiationData) => {
+  const response = await API.post('/interview/negotiate', negotiationData);
+  return response.data.data;
+};
+
 export {
   uploadResume,
   getResume,
@@ -107,4 +144,12 @@ export {
   shareInterview,
   getSharedInterview,
   updateGoal,
-};
+  clarifyQuestion,
+  saveVisionMetrics,
+  auditStarStory,
+  getStarStories,
+  saveStarStory,
+  deleteStarStory,
+  simulateNegotiation,
+};
+

@@ -206,6 +206,49 @@
   letter-spacing: 0.02em;
 }
 
+/* Presence Telemetry HUD Overlay */
+.webcam-hud-overlay {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  right: 8px;
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  padding: 5px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  z-index: 5;
+  pointer-events: none;
+  animation: fadeInHud 0.2s ease-out;
+}
+
+.hud-metric-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.64rem;
+  line-height: 1.2;
+}
+
+.hud-metric-label {
+  color: #94a3b8;
+  font-weight: 500;
+}
+
+.hud-metric-val {
+  color: #38bdf8;
+  font-weight: 700;
+  font-family: monospace;
+}
+
+@keyframes fadeInHud {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 @keyframes pipBlink {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.3; }

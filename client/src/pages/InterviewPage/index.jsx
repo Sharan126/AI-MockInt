@@ -6,6 +6,8 @@ import {
   transcribeAudio,
   submitCode,
   endInterview,
+  clarifyQuestion,
+  saveVisionMetrics,
 } from '../../services/interviewService.js';
 import VoiceRecorder from '../../components/VoiceRecorder';
 import AudioPlayer from '../../components/AudioPlayer';
@@ -24,6 +26,8 @@ import {
   BsXCircleFill,
   BsDiagram3,
   BsFire,
+  BsQuestionCircle,
+  BsChatDotsFill,
 } from 'react-icons/bs';
 import toast from 'react-hot-toast';
 import './index.css';
@@ -64,6 +68,13 @@ function InterviewPage() {
   const [isProbing, setIsProbing] = useState(false);
   const [showWhiteboard, setShowWhiteboard] = useState(false);
 
+  // Advanced features state
+  const [showClarifyModal, setShowClarifyModal] = useState(false);
+  const [clarifyInput, setClarifyInput] = useState('');
+  const [clarifying, setClarifying] = useState(false);
+  const [clarificationHistory, setClarificationHistory] = useState([]);
+  const [visionMetrics, setVisionMetrics] = useState(null);
+
   useEffect(() => {
     const loadInterview = async () => {
       try {
@@ -74,6 +85,12 @@ function InterviewPage() {
           setCompanyTrack(data.companyTrack || 'General');
           setInterviewerPersona(data.interviewerPersona || 'Natalie');
           setIsProbing(Boolean(data.isProbing));
+          if (data.clarifications) {
+            setClarificationHistory(data.clarifications);
+          }
+          if (data.visionMetrics) {
+            setVisionMetrics(data.visionMetrics);
+          }
           const q =
             (data.questions && data.questions[data.currentQuestion - 1]) ||
             data.questions?.[0] ||
@@ -219,9 +236,43 @@ function InterviewPage() {
     }
   };
 
+  const handleClarifySubmit = async (textToSubmit) => {
+    const qText = (textToSubmit || clarifyInput || '').trim();
+    if (!qText) return;
+    setClarifying(true);
+    try {
+      const res = await clarifyQuestion(id, qText);
+      const newEntry = {
+        questionText: qText,
+        answerText: res.answer,
+        timestamp: new Date(),
+      };
+      setClarificationHistory((prev) => [...prev, newEntry]);
+      setClarifyInput('');
+      setInterviewerText(res.answer);
+      if (res.audio) {
+        setCurrentAudio(res.audio);
+        setAudioKey((prev) => prev + 1);
+        setInterviewerState(STATE_SPEAKING);
+      }
+      toast.success('Interviewer clarified problem constraints!');
+    } catch (err) {
+      toast.error('Failed to get clarification from interviewer.');
+    } finally {
+      setClarifying(false);
+    }
+  };
+
   const handleEndInterview = async () => {
     setEnding(true);
     try {
+      if (visionMetrics) {
+        try {
+          await saveVisionMetrics(id, visionMetrics);
+        } catch (vErr) {
+          console.warn('Vision metrics sync fallback:', vErr.message);
+        }
+      }
       await endInterview(id);
       navigate(`/feedback/${id}`);
     } catch (err) {
@@ -265,6 +316,14 @@ function InterviewPage() {
         </div>
         <div className="topbar-right">
           <button
+            type="button"
+            className="topbar-clarify-btn"
+            onClick={() => setShowClarifyModal(true)}
+            title="Ask clarifying questions regarding problem scope, constraints, or scale (Free scoping turn)"
+          >
+            <BsQuestionCircle /> Clarify Scope
+          </button>
+          <button
             className="topbar-whiteboard-btn"
             onClick={() => setShowWhiteboard(true)}
             title="Open Interactive System Design Whiteboard"
@@ -298,7 +357,7 @@ function InterviewPage() {
           </div>
         </div>
 
-        <WebcamMirror />
+        <WebcamMirror onMetricsUpdate={setVisionMetrics} />
 
         <div className="interviewer-status-block">
           {isSpeaking && (
@@ -708,6 +767,102 @@ function InterviewPage() {
           interviewId={id}
           onClose={() => setShowWhiteboard(false)}
         />
+      )}
+
+      {/* Clarifying Questions Modal */}
+      {showClarifyModal && (
+        <div className="clarify-modal-backdrop" onClick={() => setShowClarifyModal(false)}>
+          <div className="clarify-modal-card" onClick={(e) => e.stopPropagation()}>
+            <div className="clarify-modal-header">
+              <div className="clarify-header-title-row">
+                <BsQuestionCircle className="clarify-header-icon" />
+                <div>
+                  <h3 className="clarify-modal-title">Ask Clarifying Question</h3>
+                  <p className="clarify-modal-sub">
+                    In FAANG loops, senior candidates scope constraints and volume before designing. This is a free turn and does NOT consume your question quota.
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                className="clarify-modal-close"
+                onClick={() => setShowClarifyModal(false)}
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Quick Scoping Chips */}
+            <div className="clarify-chips-section">
+              <span className="clarify-chips-label">Quick Scoping Inquiries:</span>
+              <div className="clarify-chips-list">
+                {[
+                  'Can we assume all inputs fit comfortably in single-node memory?',
+                  'What are the target throughput (QPS) and p99 latency SLAs?',
+                  'Can the input data contain duplicate keys or null fields?',
+                  'Should we prioritize strong consistency or high availability?',
+                ].map((chip, idx) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    className="clarify-chip-btn"
+                    onClick={() => {
+                      setClarifyInput(chip);
+                      handleClarifySubmit(chip);
+                    }}
+                    disabled={clarifying}
+                  >
+                    {chip}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Session Clarifications Thread */}
+            {clarificationHistory && clarificationHistory.length > 0 && (
+              <div className="clarify-thread-container">
+                <h4 className="clarify-thread-title">Session Constraints & Clarifications:</h4>
+                <div className="clarify-thread-list">
+                  {clarificationHistory.map((item, idx) => (
+                    <div key={idx} className="clarify-thread-item">
+                      <div className="clarify-thread-q">
+                        <strong>You asked:</strong> {item.questionText}
+                      </div>
+                      <div className="clarify-thread-a">
+                        <strong>{interviewerPersona}:</strong> {item.answerText}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Input Box */}
+            <div className="clarify-input-section">
+              <textarea
+                className="clarify-textarea"
+                rows={3}
+                placeholder={`Ask ${interviewerPersona} about constraints, edge cases, data types, or failure modes...`}
+                value={clarifyInput}
+                onChange={(e) => setClarifyInput(e.target.value)}
+                disabled={clarifying}
+              />
+              <div className="clarify-footer-row">
+                <span className="clarify-tip-text">
+                  {interviewerPersona} will respond in-character and synthesize audio.
+                </span>
+                <button
+                  type="button"
+                  className="clarify-submit-btn"
+                  onClick={() => handleClarifySubmit()}
+                  disabled={clarifying || !clarifyInput.trim()}
+                >
+                  {clarifying ? 'Interviewer Answering...' : 'Ask Interviewer'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

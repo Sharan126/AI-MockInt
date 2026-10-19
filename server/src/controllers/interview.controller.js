@@ -10,6 +10,7 @@ export const startInterview = async (req, res, next) => {
       interviewerPersona,
       jobDescription,
       pressureMode,
+      isSuperday,
     } = req.body;
 
     if (!role) {
@@ -32,7 +33,8 @@ export const startInterview = async (req, res, next) => {
       companyTrack || 'General',
       interviewerPersona || 'Natalie',
       jobDescription || '',
-      Boolean(pressureMode)
+      Boolean(pressureMode),
+      Boolean(isSuperday)
     );
 
     return res.status(201).json({ success: true, data: result });
@@ -151,6 +153,81 @@ export const getSharedInterview = async (req, res, next) => {
 export const updateGoal = async (req, res, next) => {
   try {
     const result = await interviewService.updateUserGoal(req.user._id, req.body);
+    return res.json({ success: true, data: result });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const clarifyQuestion = async (req, res, next) => {
+  try {
+    const { questionText } = req.body;
+    if (!questionText) {
+      return res.status(400).json({ success: false, message: 'Clarification question text is required.' });
+    }
+    const result = await interviewService.clarifyQuestion(
+      req.params.id,
+      req.user._id,
+      questionText
+    );
+    return res.json({ success: true, data: result });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const saveVisionMetrics = async (req, res, next) => {
+  try {
+    const result = await interviewService.saveVisionMetrics(
+      req.params.id,
+      req.user._id,
+      req.body
+    );
+    return res.json({ success: true, data: result });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const auditStarStory = async (req, res, next) => {
+  try {
+    const result = await interviewService.auditStarStory(req.body);
+    return res.json({ success: true, data: result });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getStarStories = async (req, res, next) => {
+  try {
+    const result = await interviewService.getStarStories(req.user._id);
+    return res.json({ success: true, data: result });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const saveStarStory = async (req, res, next) => {
+  try {
+    const result = await interviewService.saveStarStory(req.user._id, req.body);
+    return res.json({ success: true, data: result });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const deleteStarStory = async (req, res, next) => {
+  try {
+    const result = await interviewService.deleteStarStory(req.user._id, req.params.storyId);
+    return res.json({ success: true, data: result });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const simulateNegotiation = async (req, res, next) => {
+  try {
+    const result = await interviewService.simulateNegotiation(req.body);
     return res.json({ success: true, data: result });
   } catch (error) {
     next(error);

@@ -139,6 +139,7 @@ function InterviewSetupPage() {
   const [selectedPersona, setSelectedPersona] = useState('Natalie');
   const [jobDescription, setJobDescription] = useState('');
   const [pressureMode, setPressureMode] = useState(false);
+  const [isSuperday, setIsSuperday] = useState(false);
   const [resumeText, setResumeText] = useState('');
   const [resumeFileName, setResumeFileName] = useState('');
   const [loading, setLoading] = useState(false);
@@ -201,7 +202,7 @@ function InterviewSetupPage() {
       const difficultyConfig = DIFFICULTY_LEVELS.find(
         (d) => d.id === selectedDifficulty
       );
-      const totalQuestions = difficultyConfig ? difficultyConfig.questions : 5;
+      const totalQuestions = isSuperday ? 4 : (difficultyConfig ? difficultyConfig.questions : 5);
 
       const data = await startInterview(
         selectedRole,
@@ -210,7 +211,8 @@ function InterviewSetupPage() {
         selectedTrack,
         selectedPersona,
         jobDescription,
-        pressureMode
+        pressureMode,
+        isSuperday
       );
 
       toast.success('Interview started!');
@@ -465,6 +467,51 @@ function InterviewSetupPage() {
                 <div className={`switch-handle ${pressureMode ? 'on' : ''}`} />
               </div>
             </div>
+
+            {/* FAANG Superday Full-Loop Simulation Mode */}
+            <div
+              className={`pressure-mode-card ${isSuperday ? 'pressure-mode-active' : ''}`}
+              style={{
+                borderColor: isSuperday ? '#10b981' : undefined,
+                background: isSuperday ? 'rgba(16, 185, 129, 0.08)' : undefined,
+              }}
+              onClick={() => setIsSuperday(!isSuperday)}
+            >
+              <div className="pressure-card-left">
+                <div
+                  className="pressure-icon-circle"
+                  style={{
+                    backgroundColor: isSuperday ? '#10b981' : undefined,
+                    color: '#ffffff',
+                  }}
+                >
+                  🏆
+                </div>
+                <div>
+                  <div className="pressure-card-header">
+                    <strong>FAANG "Superday" Full-Loop Simulation</strong>
+                    <span
+                      className="pressure-status-tag"
+                      style={{
+                        backgroundColor: isSuperday ? 'rgba(16, 185, 129, 0.2)' : undefined,
+                        color: isSuperday ? '#10b981' : undefined,
+                      }}
+                    >
+                      {isSuperday ? '4 ROUNDS ACTIVE' : 'STANDARD'}
+                    </span>
+                  </div>
+                  <p className="pressure-card-desc">
+                    Simulate the complete 4-round onsite loop (Screening, Algorithmic DSA, System Design, and Behavioral Bar Raiser) culminating in an official Hiring Committee consensus vote and leveling calibration.
+                  </p>
+                </div>
+              </div>
+              <div className="pressure-toggle-switch">
+                <div
+                  className={`switch-handle ${isSuperday ? 'on' : ''}`}
+                  style={{ backgroundColor: isSuperday ? '#10b981' : undefined }}
+                />
+              </div>
+            </div>
           </div>
         )}
 
@@ -598,6 +645,12 @@ function InterviewSetupPage() {
                 <span className="summary-pill-label">Pressure Drill:</span>
                 <span className="summary-pill-val" style={{ color: pressureMode ? '#f59e0b' : 'inherit' }}>
                   {pressureMode ? '🔥 Enabled' : 'Off'}
+                </span>
+              </div>
+              <div className="summary-pill-item">
+                <span className="summary-pill-label">Superday:</span>
+                <span className="summary-pill-val" style={{ color: isSuperday ? '#10b981' : 'inherit' }}>
+                  {isSuperday ? '🏆 4-Round Loop' : 'Standard'}
                 </span>
               </div>
               {jobDescription.trim() && (

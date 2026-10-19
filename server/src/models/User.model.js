@@ -84,6 +84,12 @@ const userSchema = new mongoose.Schema(
       targetDate: { type: Date, default: null },
       prepStreak: { type: Number, default: 3 },
     },
+
+    // Candidate behavioral STAR story bank
+    starStories: {
+      type: Array,
+      default: [],
+    },
   },
   {
     timestamps: true, // Adds createdAt and updatedAt automatically

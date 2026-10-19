@@ -86,6 +86,22 @@ const interviewSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.Mixed,
       default: null,
     },
+    visionMetrics: {
+      type: mongoose.Schema.Types.Mixed,
+      default: null,
+    },
+    clarifications: {
+      type: Array,
+      default: [],
+    },
+    isSuperday: {
+      type: Boolean,
+      default: false,
+    },
+    committeeVote: {
+      type: mongoose.Schema.Types.Mixed,
+      default: null,
+    },
   },
   {
     timestamps: true,
