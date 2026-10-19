@@ -175,16 +175,24 @@ const ResumeOptimizerPage = () => {
               {/* Score summary banner */}
               <div className="ats-score-banner">
                 <div className="gauge-box">
-                  <div
-                    className="gauge-circle"
-                    style={{
-                      borderColor: getScoreColor(result.atsScore),
-                      color: getScoreColor(result.atsScore),
-                    }}
-                  >
-                    <span className="gauge-num">{result.atsScore}</span>
-                    <span className="gauge-label">ATS Score</span>
-                  </div>
+                  <svg className="ats-gauge-svg" viewBox="0 0 100 100">
+                    <circle className="gauge-bg-circle" cx="50" cy="50" r="40" />
+                    <circle
+                      className="gauge-fill-circle"
+                      cx="50"
+                      cy="50"
+                      r="40"
+                      strokeDasharray={251.3}
+                      strokeDashoffset={251.3 - (251.3 * (result.atsScore || 0)) / 100}
+                      style={{ stroke: getScoreColor(result.atsScore) }}
+                    />
+                    <text x="50" y="48" className="ats-gauge-num" textAnchor="middle">
+                      {result.atsScore}
+                    </text>
+                    <text x="50" y="62" className="ats-gauge-label" textAnchor="middle">
+                      ATS SCORE
+                    </text>
+                  </svg>
                 </div>
 
                 <div className="score-summary-details">

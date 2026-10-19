@@ -4,8 +4,8 @@ import './index.css';
 /**
  * AiOrb - Interactive audio-reactive avatar for Natalie (AI Interviewer).
  * States:
- *  - 'speaking': Glowing ripple waves, energetic pulsating core
- *  - 'thinking': Rotating gradient orbital rings, shimmer effect
+ *  - 'speaking': Glowing ripple waves, energetic pulsating core, live 16-bar frequency visualizer
+ *  - 'thinking': Rotating gradient orbital rings, cyan/purple shimmer aurora
  *  - 'listening': Gentle breathing glow, ready for candidate response
  *  - 'farewell': Warm triumphant emerald/gold aurora
  */
@@ -15,17 +15,20 @@ function AiOrb({ state = 'listening', isAudioPlaying = false }) {
   const statusLabel = useMemo(() => {
     switch (activeState) {
       case 'speaking':
-        return 'Speaking';
+        return 'Interviewer Speaking';
       case 'thinking':
-        return 'Analyzing...';
+        return 'Analyzing Rubrics...';
       case 'listening':
-        return 'Listening to you';
+        return 'Active Listening';
       case 'farewell':
-        return 'Complete';
+        return 'Session Concluded';
       default:
         return 'Online';
     }
   }, [activeState]);
+
+  // Frequency bands array for speaking equalizer
+  const EQ_BARS = [12, 28, 45, 78, 95, 60, 85, 100, 75, 90, 55, 80, 40, 65, 30, 15];
 
   return (
     <div className={`ai-orb-container state-${activeState}`}>
@@ -38,10 +41,12 @@ function AiOrb({ state = 'listening', isAudioPlaying = false }) {
       <div className="orb-orbit-track">
         <div className="orb-satellite satellite-1" />
         <div className="orb-satellite satellite-2" />
+        <div className="orb-satellite satellite-3" />
       </div>
 
       {/* Core glowing sphere */}
       <div className="orb-core">
+        <div className="orb-plasma-layer" />
         <div className="orb-core-gradient" />
         <div className="orb-core-highlight" />
 
@@ -65,6 +70,20 @@ function AiOrb({ state = 'listening', isAudioPlaying = false }) {
         {activeState === 'listening' && (
           <div className="orb-listening-pulse" />
         )}
+      </div>
+
+      {/* Live Audio Frequency Equalizer Strip */}
+      <div className="orb-frequency-strip">
+        {EQ_BARS.map((height, idx) => (
+          <div
+            key={idx}
+            className={`freq-bar freq-${(idx % 4) + 1} ${activeState === 'speaking' ? 'active' : ''}`}
+            style={{
+              '--base-height': `${height}%`,
+              animationDelay: `${(idx * 0.08).toFixed(2)}s`,
+            }}
+          />
+        ))}
       </div>
 
       {/* Micro-label pill underneath */}

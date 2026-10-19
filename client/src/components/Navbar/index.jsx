@@ -1,7 +1,8 @@
-import { useContext } from 'react';
+import { useState, useContext } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext.jsx';
 import { ThemeContext } from '../../context/ThemeContext.jsx';
+import CommandPalette from '../CommandPalette/index.jsx';
 import {
   BsCameraVideo,
   BsSunFill,
@@ -9,6 +10,8 @@ import {
   BsFileEarmarkCheck,
   BsStarFill,
   BsCashStack,
+  BsFire,
+  BsSearch,
 } from 'react-icons/bs';
 import { MdDashboard, MdHistory, MdSettings, MdLogout } from 'react-icons/md';
 import { FaUser } from 'react-icons/fa';
@@ -17,6 +20,7 @@ import './index.css';
 function Navbar() {
   const { user, logout } = useContext(AuthContext);
   const { theme, toggleTheme } = useContext(ThemeContext);
+  const [isPaletteOpen, setIsPaletteOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -78,6 +82,24 @@ function Navbar() {
         </div>
       </div>
       <div className="navbar-right">
+        {/* Quick Search Ctrl+K Button */}
+        <button
+          type="button"
+          className="nav-search-btn"
+          onClick={() => setIsPaletteOpen(true)}
+          title="Search features & actions (Ctrl+K / ⌘K)"
+        >
+          <BsSearch className="search-pill-icon" />
+          <span className="search-pill-text">Quick Action</span>
+          <kbd className="search-pill-kbd">Ctrl K</kbd>
+        </button>
+
+        {/* Daily Streak Badge */}
+        <div className="nav-streak-pill" title="Daily Interview Streak">
+          <BsFire className="streak-fire-icon" />
+          <span className="streak-count">4d</span>
+        </div>
+
         {/* Theme Toggle Button */}
         <button
           type="button"
@@ -95,15 +117,23 @@ function Navbar() {
 
         {user && (
           <div className="navbar-user-section">
-            <FaUser className="user-icon" />
+            <div className="user-avatar-pill">
+              <span className="avatar-initial">{(user.name || 'U')[0].toUpperCase()}</span>
+              <span className="online-indicator"></span>
+            </div>
             <span className="user-name">{user.name}</span>
             <button className="logout-btn" onClick={handleLogout} title="Logout">
               <MdLogout className="logout-icon" />
-              Logout
+              <span className="logout-text">Logout</span>
             </button>
           </div>
         )}
       </div>
+
+      <CommandPalette
+        isOpen={isPaletteOpen}
+        onClose={() => setIsPaletteOpen(false)}
+      />
     </nav>
   );
 }

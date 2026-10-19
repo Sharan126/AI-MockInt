@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import {
   uploadResume,
   getResume,
@@ -131,6 +131,7 @@ const INTERVIEWER_PERSONAS = [
 
 function InterviewSetupPage() {
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [step, setStep] = useState(1);
   const [selectedRole, setSelectedRole] = useState('');
@@ -144,6 +145,16 @@ function InterviewSetupPage() {
   const [resumeFileName, setResumeFileName] = useState('');
   const [loading, setLoading] = useState(false);
   const [uploadingResume, setUploadingResume] = useState(false);
+
+  useEffect(() => {
+    if (location.state?.prefill) {
+      const { company } = location.state.prefill;
+      if (company && ['Amazon', 'Google', 'Meta', 'Startup'].includes(company)) {
+        setSelectedTrack(company);
+        toast.success(`🎯 Configured for ${company} Interview Track!`);
+      }
+    }
+  }, [location.state]);
 
   useEffect(() => {
     const loadResume = async () => {

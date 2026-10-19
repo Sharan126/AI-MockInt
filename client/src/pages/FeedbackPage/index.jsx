@@ -303,33 +303,44 @@ function FeedbackPage() {
         </div>
 
         {/* Overall Score & Readiness Section */}
-        <div className="feedback-overall-section">
-          <div
-            className="feedback-score-circle"
-            style={{ borderColor: getScoreColor(overallScore) }}
-          >
-            <span
-              className="feedback-score-number"
-              style={{ color: getScoreColor(overallScore) }}
-            >
-              {overallScore}
-            </span>
-            <span className="feedback-score-label">/100</span>
+        <div className="feedback-overall-section glass-card">
+          <div className="feedback-score-gauge-col">
+            <svg className="feedback-score-svg" viewBox="0 0 120 120">
+              <defs>
+                <linearGradient id="scoreRingGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#06b6d4" />
+                  <stop offset="50%" stopColor="#6366f1" />
+                  <stop offset="100%" stopColor="#10b981" />
+                </linearGradient>
+              </defs>
+              <circle className="gauge-bg-circle" cx="60" cy="60" r="48" />
+              <circle
+                className="gauge-fill-circle"
+                cx="60"
+                cy="60"
+                r="48"
+                strokeDasharray={301.6}
+                strokeDashoffset={301.6 - (301.6 * (overallScore || 0)) / 100}
+                stroke="url(#scoreRingGradient)"
+              />
+              <text x="60" y="56" className="feedback-gauge-score" textAnchor="middle">
+                {overallScore}
+              </text>
+              <text x="60" y="74" className="feedback-gauge-total" textAnchor="middle">
+                / 100
+              </text>
+            </svg>
           </div>
 
           <div className="feedback-readiness-info">
-            <h2 className="feedback-overall-title">Overall Score</h2>
-            <div
-              className="readiness-pill"
-              style={{
-                borderColor: readinessColor,
-                color: readinessColor,
-                backgroundColor: `${readinessColor}15`,
-              }}
-            >
-              <BsPatchCheckFill />
+            <div className="badge-holographic feedback-readiness-holo">
+              <BsPatchCheckFill className="holo-check-icon" />
               <span>{readinessTier}</span>
             </div>
+            <h2 className="feedback-overall-title">Comprehensive Readiness Index</h2>
+            <p className="feedback-readiness-summary">
+              Synthesized across algorithm complexity, STAR behavioral delivery, speech pace, and vision telemetry.
+            </p>
           </div>
         </div>
 

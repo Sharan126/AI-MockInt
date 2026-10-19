@@ -872,3 +872,86 @@
   color: #6366f1;
 }
 
+/* ==========================================================================
+   InterviewSetupPage - Complete Dark Theme & Glassmorphism Rules
+   ========================================================================== */
+
+[data-theme='dark'] .setup-page {
+  background-color: transparent;
+}
+
+[data-theme='dark'] .setup-step-badge {
+  background-color: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.1);
+  color: #94a3b8;
+}
+
+[data-theme='dark'] .setup-step-active {
+  background-color: #6366f1;
+  color: #ffffff;
+  border-color: #6366f1;
+}
+
+[data-theme='dark'] .setup-section-heading {
+  color: #ffffff;
+}
+
+[data-theme='dark'] .setup-role-card,
+[data-theme='dark'] .setup-difficulty-card,
+[data-theme='dark'] .setup-track-card,
+[data-theme='dark'] .setup-persona-card,
+[data-theme='dark'] .setup-resume-uploaded {
+  background: rgba(17, 24, 39, 0.72);
+  border-color: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme='dark'] .setup-role-title,
+[data-theme='dark'] .setup-difficulty-label,
+[data-theme='dark'] .setup-track-title,
+[data-theme='dark'] .setup-persona-name,
+[data-theme='dark'] .setup-resume-name,
+[data-theme='dark'] .setup-preparing-heading {
+  color: #ffffff;
+}
+
+[data-theme='dark'] .setup-role-desc,
+[data-theme='dark'] .setup-difficulty-desc,
+[data-theme='dark'] .setup-track-desc,
+[data-theme='dark'] .setup-persona-desc,
+[data-theme='dark'] .setup-preparing-text {
+  color: #94a3b8;
+}
+
+[data-theme='dark'] .setup-role-selected,
+[data-theme='dark'] .setup-difficulty-selected,
+[data-theme='dark'] .setup-track-card.active,
+[data-theme='dark'] .setup-persona-card.active {
+  border-color: #6366f1;
+  background: rgba(99, 102, 241, 0.18);
+  box-shadow: 0 0 20px rgba(99, 102, 241, 0.25);
+}
+
+[data-theme='dark'] .setup-upload-zone {
+  border-color: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+[data-theme='dark'] .setup-upload-text {
+  color: #94a3b8;
+}
+
+[data-theme='dark'] .setup-back-btn,
+[data-theme='dark'] .setup-change-resume-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.15);
+  color: #e2e8f0;
+}
+
+[data-theme='dark'] .setup-back-btn:hover,
+[data-theme='dark'] .setup-change-resume-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+}
+
+

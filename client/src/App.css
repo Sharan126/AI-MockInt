@@ -1,14 +1,50 @@
 /* ============================================
-   App.css - Global Styles (Ocean Blue Palette)
-   ============================================
-   Skills-compliant: No CSS variables, no animations,
-   no transitions, no transforms, no pseudo-classes.
-   Reference: reference-frontend.md (CSS properties)
+   App.css - Global Styles (Cyber-Luxe & Aurora Mesh Design System)
    ============================================ */
 
-@import url("https://fonts.googleapis.com/css2?family=Bree+Serif&family=Roboto:wght@400;700&family=Open+Sans:wght@400;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Plus+Jakarta+Sans:wght@500;600;700;800;900&display=swap");
 
-/* Reset (skills-compliant) */
+:root {
+  --font-main: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+
+  /* Light Theme (Clean Alabaster & Frosted Pearl) */
+  --color-background: #f8fafc;
+  --color-surface: #ffffff;
+  --color-surface-hover: #f1f5f9;
+  --color-border: #e2e8f0;
+  --color-border-subtle: #cbd5e1;
+  --color-text: #0f172a;
+  --color-text-muted: #64748b;
+  --dot-color: rgba(99, 102, 241, 0.08);
+
+  --primary: #4f46e5;
+  --primary-hover: #4338ca;
+  --primary-glow: rgba(79, 70, 229, 0.35);
+
+  --accent-cyan: #06b6d4;
+  --accent-emerald: #10b981;
+  --accent-amber: #f59e0b;
+  --accent-rose: #f43f5e;
+}
+
+[data-theme="dark"] {
+  /* Dark Theme (Deep Space Obsidian & Neon Accents) */
+  --color-background: #080c14;
+  --color-surface: #0e1526;
+  --color-surface-hover: #151f38;
+  --color-border: #1e293b;
+  --color-border-subtle: #334155;
+  --color-text: #f8fafc;
+  --color-text-muted: #94a3b8;
+  --dot-color: rgba(99, 102, 241, 0.12);
+
+  --primary: #6366f1;
+  --primary-hover: #4f46e5;
+  --primary-glow: rgba(99, 102, 241, 0.45);
+}
+
+/* Reset */
 * {
   margin: 0;
   padding: 0;
@@ -16,10 +52,50 @@
 }
 
 body {
-  font-family: "Roboto", sans-serif;
-  background-color: #f8fafc;
-  color: #334155;
+  font-family: var(--font-main);
+  background-color: var(--color-background);
+  color: var(--color-text);
   line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.app-shell {
+  min-height: 100vh;
+  position: relative;
+  background-color: var(--color-background);
+  color: var(--color-text);
+  font-family: var(--font-main);
+  background-image: radial-gradient(var(--dot-color) 1.2px, transparent 1.2px);
+  background-size: 28px 28px;
+  overflow-x: hidden;
+}
+
+/* Ambient Aurora Mesh Lighting Effects */
+.app-shell::before {
+  content: '';
+  position: fixed;
+  top: -150px;
+  left: 20%;
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.12) 0%, rgba(99, 102, 241, 0) 70%);
+  filter: blur(140px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.app-shell::after {
+  content: '';
+  position: fixed;
+  bottom: -150px;
+  right: 15%;
+  width: 650px;
+  height: 650px;
+  background: radial-gradient(circle, rgba(6, 182, 212, 0.1) 0%, rgba(6, 182, 212, 0) 70%);
+  filter: blur(140px);
+  pointer-events: none;
+  z-index: 0;
 }
 
 a {
@@ -41,7 +117,7 @@ select {
   outline: none;
 }
 
-/* Mobile viewport accessibility: prevents iOS Safari auto-zoom on input focus */
+/* Mobile viewport accessibility */
 @media screen and (max-width: 768px) {
   input,
   textarea,
@@ -51,49 +127,135 @@ select {
   }
 }
 
-/* ============================================
-   Shared Button Classes
-   Reference: ui-patterns.md (Button Patterns)
-   ============================================ */
-.btn-primary {
-  background-color: #2563eb;
+/* Global Micro-Utility Classes */
+.text-gradient-primary {
+  background: linear-gradient(135deg, #6366f1 0%, #a855f7 50%, #ec4899 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  display: inline-block;
+}
+
+.glass-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-top: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 16px;
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(16px);
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+[data-theme="dark"] .glass-card {
+  background: rgba(14, 21, 38, 0.7);
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.glass-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(99, 102, 241, 0.5);
+  box-shadow: 0 16px 40px rgba(99, 102, 241, 0.12);
+}
+
+.badge-holographic {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.2) 0%, rgba(236, 72, 153, 0.2) 50%, rgba(6, 182, 212, 0.2) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  box-shadow: 0 0 12px rgba(99, 102, 241, 0.2);
+  position: relative;
+  overflow: hidden;
+}
+
+.badge-holographic::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    60deg,
+    transparent 20%,
+    rgba(255, 255, 255, 0.3) 50%,
+    transparent 80%
+  );
+  transform: rotate(30deg);
+  animation: holoSheen 4s infinite linear;
+}
+
+@keyframes holoSheen {
+  0% { transform: translateX(-100%) rotate(30deg); }
+  100% { transform: translateX(100%) rotate(30deg); }
+}
+
+.btn-glow {
+  background: linear-gradient(135deg, #6366f1, #4f46e5);
   color: #ffffff;
-  font-family: "Roboto";
+  border: none;
+  box-shadow: 0 4px 16px rgba(99, 102, 241, 0.35);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-glow:active {
+  transform: scale(0.98);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #6366f1, #4f46e5);
+  color: #ffffff;
+  font-family: var(--font-main);
   font-size: 14px;
   font-weight: 700;
   padding: 12px 24px;
-  border-radius: 8px;
-  border-style: none;
+  border-radius: 10px;
+  border: none;
   cursor: pointer;
-  outline: none;
+  box-shadow: 0 4px 16px rgba(99, 102, 241, 0.3);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(99, 102, 241, 0.45);
+}
+
+.btn-primary:active {
+  transform: scale(0.98);
 }
 
 .btn-primary-lg {
-  background-color: #2563eb;
+  background: linear-gradient(135deg, #6366f1, #4f46e5);
   color: #ffffff;
-  font-family: "Roboto";
+  font-family: var(--font-main);
   font-size: 16px;
   font-weight: 700;
   padding: 14px 32px;
-  border-radius: 8px;
-  border-style: none;
+  border-radius: 10px;
+  border: none;
   cursor: pointer;
-  outline: none;
+  box-shadow: 0 4px 18px rgba(99, 102, 241, 0.35);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-primary-lg:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(99, 102, 241, 0.5);
 }
 
 .btn-outline {
   background-color: transparent;
-  color: #2563eb;
-  font-family: "Roboto";
+  color: #6366f1;
+  font-family: var(--font-main);
   font-size: 14px;
   font-weight: 700;
   padding: 12px 24px;
-  border-radius: 8px;
-  border-style: solid;
-  border-width: 2px;
-  border-color: #2563eb;
+  border-radius: 10px;
+  border: 1.5px solid #6366f1;
   cursor: pointer;
-  outline: none;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-outline:hover {
+  background: rgba(99, 102, 241, 0.1);
+  transform: translateY(-1px);
 }
 
 .btn-danger {

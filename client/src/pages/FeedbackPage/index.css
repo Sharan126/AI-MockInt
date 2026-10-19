@@ -163,74 +163,106 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 24px;
-  background: var(--color-surface, #ffffff);
-  border: 1px solid var(--color-border, #e2e8f0);
-  border-radius: 16px;
-  padding: 24px 32px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+  gap: 36px;
+  background: var(--glass-bg, rgba(17, 24, 39, 0.7));
+  border: 1px solid var(--glass-border, rgba(255, 255, 255, 0.08));
+  border-radius: 20px;
+  padding: 28px 36px;
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.4);
   flex-wrap: wrap;
 }
 
-[data-theme='dark'] .feedback-overall-section {
-  background: #1e293b;
-  border-color: #334155;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+[data-theme='light'] .feedback-overall-section {
+  background: #ffffff;
+  border-color: #e2e8f0;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.05);
 }
 
-.feedback-score-circle {
-  width: 110px;
-  height: 110px;
-  border-radius: 50%;
-  border-width: 5px;
-  border-style: solid;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  background-color: var(--color-surface, #ffffff);
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
+.feedback-score-gauge-col {
+  width: 120px;
+  height: 120px;
+  flex-shrink: 0;
 }
 
-[data-theme='dark'] .feedback-score-circle {
-  background-color: #0f172a;
+.feedback-score-svg {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
 }
 
-.feedback-score-number {
-  font-size: 38px;
+.gauge-bg-circle {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.08);
+  stroke-width: 9;
+}
+
+[data-theme='light'] .gauge-bg-circle {
+  stroke: #e2e8f0;
+}
+
+.gauge-fill-circle {
+  fill: none;
+  stroke-width: 9;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+  filter: drop-shadow(0 0 8px rgba(99, 102, 241, 0.6));
+}
+
+.feedback-gauge-score {
+  transform: rotate(90deg);
+  transform-origin: 60px 60px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 28px;
   font-weight: 800;
-  line-height: 1;
+  fill: var(--text-primary, #ffffff);
 }
 
-.feedback-score-label {
-  font-size: 13px;
-  color: var(--color-text-muted, #64748b);
-  font-weight: 600;
+[data-theme='light'] .feedback-gauge-score {
+  fill: #0f172a;
+}
+
+.feedback-gauge-total {
+  transform: rotate(90deg);
+  transform-origin: 60px 60px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  fill: var(--text-muted, #64748b);
 }
 
 .feedback-readiness-info {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  flex: 1;
+  min-width: 260px;
+}
+
+.feedback-readiness-holo {
+  align-self: flex-start;
+  font-size: 12px;
+}
+
+.holo-check-icon {
+  font-size: 13px;
+  color: #38bdf8;
 }
 
 .feedback-overall-title {
-  font-size: 20px;
-  font-weight: 700;
-  color: var(--color-text, #0f172a);
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--text-primary, #ffffff);
+  letter-spacing: -0.02em;
   margin: 0;
 }
 
-.readiness-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 14px;
-  border-radius: 9999px;
-  border: 1px solid;
-  font-size: 0.85rem;
-  font-weight: 700;
-  letter-spacing: 0.02em;
+.feedback-readiness-summary {
+  font-family: 'Inter', sans-serif;
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: var(--text-secondary, #94a3b8);
+  margin: 0;
 }
 
 /* Real-Time Speech & Soft-Skills Intelligence Card */
